@@ -3,24 +3,25 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
-    DATABASE_URL: z.url(),
-    BETTER_AUTH_URL: z.string(),
-    BETTER_AUTH_SECRET: z.string(),
-    TWITTER_CLIENT_ID: z.string(),
-    TWITTER_CLIENT_SECRET: z.string(),
-    GITHUB_CLIENT_ID: z.string(),
-    GITHUB_CLIENT_SECRET: z.string(),
-    GOOGLE_CLIENT_ID: z.string(),
-    GOOGLE_CLIENT_SECRET: z.string(),
+    DATABASE_URL: z.string().min(1),
+    BETTER_AUTH_SECRET: z.string().min(1),
+    TWITTER_CLIENT_ID: z.string().min(1),
+    TWITTER_CLIENT_SECRET: z.string().min(1),
+    GITHUB_CLIENT_ID: z.string().min(1),
+    GITHUB_CLIENT_SECRET: z.string().min(1),
+    GOOGLE_CLIENT_ID: z.string().min(1),
+    GOOGLE_CLIENT_SECRET: z.string().min(1),
   },
 
   /**
    * The prefix that client-side variables must have. This is enforced both at
    * a type-level and at runtime.
    */
-  clientPrefix: "PUBLIC_",
+  clientPrefix: "NEXT_PUBLIC_",
 
-  client: {},
+  client: {
+    NEXT_PUBLIC_APP_URL: z.url().optional().default("http://localhost:3000"),
+  },
 
   /**
    * What object holds the environment variables at runtime. This is usually

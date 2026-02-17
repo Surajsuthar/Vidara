@@ -1,10 +1,10 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "./db";
 import { env } from "@/utils/env";
+import { db } from "./db";
 
 export const auth = betterAuth({
-  baseURL: env.BETTER_AUTH_URL,
+  baseURL: env.NEXT_PUBLIC_APP_URL,
   rateLimit: {
     max: 100,
     window: 60,

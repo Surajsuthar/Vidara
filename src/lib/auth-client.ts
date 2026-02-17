@@ -3,6 +3,8 @@ import { createAuthClient } from "better-auth/react";
 import { env } from "@/utils/env";
 
 export const authClient = createAuthClient({
-  baseURL: env.BETTER_AUTH_URL || "http://localhost:3000",
+  baseURL: env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   plugins: [lastLoginMethodClient()],
 });
+
+export const { signIn, signOut, signUp, useSession } = authClient;
