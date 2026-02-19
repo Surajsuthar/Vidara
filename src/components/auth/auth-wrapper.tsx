@@ -76,7 +76,7 @@ export default function AuthWrapper() {
       </CardContent>
 
       <CardFooter className="border-t">
-        <div className="w-full text-center py-4 text-xs text-black">
+        <div className="w-full text-center py-4 text-xs">
           Built in Public by{" "}
           <Link
             href="https://vidara.in"
