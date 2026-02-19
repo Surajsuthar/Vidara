@@ -29,14 +29,12 @@ import {
 import { Collapsible } from "../ui/collapsible";
 
 interface NavUser {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
+  name: string;
+  email: string;
+  avatar: string;
 }
 
-export function NavUser({ user }: NavUser) {
+export function NavUser(user: NavUser) {
   const { isMobile } = useSidebar();
 
   return (

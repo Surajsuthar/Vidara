@@ -1,18 +1,10 @@
 "use client";
 
-import {
-  BookOpen,
-  Bot,
-  Frame,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-} from "lucide-react";
+import { Folder, Settings2, SquareTerminal } from "lucide-react";
+import { usePathname } from "next/navigation";
 import type * as React from "react";
-
+import { useMemo } from "react";
 import { NavMain } from "@/components/sidebar/nav-main";
-import { NavProjects } from "@/components/sidebar/nav-projects";
 import { LoginButton, NavUser } from "@/components/sidebar/nav-user";
 import {
   Sidebar,
@@ -22,67 +14,52 @@ import {
 } from "@/components/ui/sidebar";
 import { useSession } from "@/lib/auth-client";
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-    },
-    {
-      title: "Media",
-      url: "#",
-      icon: Bot,
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
+  const pathname = usePathname();
+
+  const mainNav = useMemo(
+    () => [
+      {
+        title: "Playground",
+        url: "/",
+        icon: SquareTerminal,
+        isActive: pathname === "/",
+      },
+      {
+        title: "Media",
+        url: "/media",
+        icon: Folder,
+        isActive: pathname.startsWith("/media"),
+      },
+      {
+        title: "Settings",
+        url: "/settings",
+        icon: Settings2,
+        isActive: pathname.startsWith("/settings"),
+      },
+    ],
+    [pathname],
+  );
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader></SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavMain items={mainNav} />
+        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
-        {session?.user ? <NavUser user={session?.user} /> : <LoginButton />}
+        {session?.user ? (
+          <NavUser
+            name={session.user.name}
+            email={session.user.email}
+            avatar={session.user.image ?? ""}
+          />
+        ) : (
+          <LoginButton />
+        )}
       </SidebarFooter>
     </Sidebar>
   );

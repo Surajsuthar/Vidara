@@ -75,6 +75,7 @@ export default function MasonryInfiniteGallery() {
   }, [fetchImages, page, hasMore, isLoading]);
 
   // Load very first page
+  // biome-ignore lint: lint/correctness/useExhaustiveDependencies
   useEffect(() => {
     if (images.length === 0) {
       fetchImages(1);
