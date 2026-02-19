@@ -31,7 +31,7 @@ export default function AuthWrapper() {
   };
 
   return (
-    <Card className="w-full max-w-md rounded-2xl shadow-lg">
+    <Card className="w-full max-w-md rounded-2xl bg-white/5 dark:bg-white/12 backdrop-blur-xl border border-white/12 shadow-2xl">
       <CardHeader className="text-center">
         <CardTitle className="text-xl md:text-2xl font-semibold">
           Hey, Welcome
@@ -76,10 +76,10 @@ export default function AuthWrapper() {
       </CardContent>
 
       <CardFooter className="border-t">
-        <div className="w-full text-center py-4 text-xs text-muted-foreground">
+        <div className="w-full text-center py-4 text-xs text-black">
           Built in Public by{" "}
           <Link
-            href="https://better-auth.com"
+            href="https://vidara.in"
             target="_blank"
             className="inline-flex items-center gap-1 underline hover:text-foreground transition"
           >
