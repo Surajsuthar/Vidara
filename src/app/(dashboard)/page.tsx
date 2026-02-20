@@ -1,3 +1,7 @@
+"use client";
+import { useSession } from "@/lib/auth-client";
+
 export default function Home() {
-  return <div>hello</div>;
+  const { data: session, isPending } = useSession();
+  return <div>jd</div>;
 }

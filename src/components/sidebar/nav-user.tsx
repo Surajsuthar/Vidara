@@ -9,7 +9,8 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react";
-
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -26,7 +27,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Collapsible } from "../ui/collapsible";
+import { authClient } from "@/lib/auth-client";
 
 interface NavUser {
   name: string;
@@ -36,6 +37,18 @@ interface NavUser {
 
 export function NavUser(user: NavUser) {
   const { isMobile } = useSidebar();
+
+  const router = useRouter();
+
+  const handleSignout = () => {
+    authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/");
+        },
+      },
+    });
+  };
 
   return (
     <SidebarMenu>
@@ -98,7 +111,7 @@ export function NavUser(user: NavUser) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleSignout}>
               <LogOut />
               Log out
             </DropdownMenuItem>
@@ -114,7 +127,9 @@ export function LoginButton() {
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton tooltip="Sing up">
-          <LogIn className="ml-auto size-4" />
+          <Link href="auth">
+            <LogIn className="ml-auto size-4" />
+          </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>

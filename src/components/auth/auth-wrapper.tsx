@@ -18,14 +18,19 @@ type AuthProvider = "google" | "github" | "twitter";
 
 export default function AuthWrapper() {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSocialLogin = async (provider: AuthProvider) => {
     await signIn.social({
       provider,
-      callbackURL: "/dashboard",
+      callbackURL: "/",
       fetchOptions: {
         onRequest: () => setLoading(true),
         onResponse: () => setLoading(false),
+        onError(context) {
+          console.log("context.error.message", context.error.message);
+          setError(context.error.message);
+        },
       },
     });
   };
@@ -73,6 +78,7 @@ export default function AuthWrapper() {
             Continue with Twitter
           </Button>
         </div>
+        {error && <div className=""></div>}
       </CardContent>
 
       <CardFooter className="border-t">

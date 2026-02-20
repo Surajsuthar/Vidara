@@ -16,7 +16,7 @@ import { useSession } from "@/lib/auth-client";
 
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
   const pathname = usePathname();
 
   const mainNav = useMemo(
@@ -51,7 +51,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
-        {session?.user ? (
+        {!isPending && session?.user ? (
           <NavUser
             name={session.user.name}
             email={session.user.email}

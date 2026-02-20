@@ -1,13 +1,24 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
+import { lastLoginMethod } from "better-auth/plugins";
 import { env } from "@/utils/env";
+import { account, session, user, verification } from "../../drizzle/schema";
 import { db } from "./db";
 
 export const auth = betterAuth({
   baseURL: env.NEXT_PUBLIC_APP_URL,
+  session: {
+    cookieCache: {
+      enabled: true,
+    },
+  },
   rateLimit: {
     max: 100,
     window: 60,
+  },
+  experimental: {
+    joins: true,
   },
   socialProviders: {
     twitter: {
@@ -25,5 +36,13 @@ export const auth = betterAuth({
   },
   database: drizzleAdapter(db, {
     provider: "pg",
+    schema: {
+      user,
+      session,
+      account,
+      verification,
+    },
   }),
+  plugins: [lastLoginMethod(), nextCookies()],
+  trustedOrigins: ["https://localhost:3000"],
 });
