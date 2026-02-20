@@ -549,13 +549,13 @@ export function wrapError(error: unknown, fallbackCode?: ErrorCode): AppError {
 
 // ─── Client-side helpers ──────────────────────────────────────────────────────
 
-// export function getErrorMessage(error: unknown): string {
-//   if (isAppError(error)) return error.userMessage;
-//   if (error instanceof Error) return error.message;
-//   if (typeof error === "string") return error;
-//   return "An unexpected error occurred.";
-// }
+export function getErrorMessage(error: unknown): string {
+  if (isAppError(error)) return error.userMessage;
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+  return "An unexpected error occurred.";
+}
 
-// export function isRetryableError(error: unknown): boolean {
-//   return isAppError(error) ? error.retryable : false;
-// }
+export function isRetryableError(error: unknown): boolean {
+  return isAppError(error) ? error.retryable : false;
+}
