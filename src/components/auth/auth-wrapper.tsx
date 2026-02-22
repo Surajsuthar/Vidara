@@ -78,7 +78,11 @@ export default function AuthWrapper() {
             Continue with Twitter
           </Button>
         </div>
-        {error && <div className=""></div>}
+        {error && (
+          <div className="mt-4 p-2 bg-rose-400/10 text-destructive w-full flex items-center justify-center">
+            {error}
+          </div>
+        )}
       </CardContent>
 
       <CardFooter className="border-t">

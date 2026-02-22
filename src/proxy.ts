@@ -10,8 +10,14 @@ export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const sessionCookie = getSessionCookie(req);
-  console.log("session", sessionCookie);
 
+  if (
+    !sessionCookie &&
+    protectedRoute.some((path) => pathname.startsWith(path))
+  ) {
+    return NextResponse.redirect(new URL("/auth", req.url));
+  }
+ 
   if (sessionCookie && authRoute.some((path) => pathname.startsWith(path))) {
     console.log("session cookie", sessionCookie);
     return NextResponse.redirect(new URL("/", req.url));

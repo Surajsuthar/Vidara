@@ -1,12 +1,15 @@
 export type processType = "generate" | "edit";
 
+export type resourceType = "text-to-image" | "image-to-image";
+
 export enum ModelProvider {
   GOOGLE = "google",
   OPENAI = "openai",
+  GROK = "grok",
   KLING = "kling",
 }
 
-export enum ModelType {
+export enum mediaType {
   IMAGE = "image",
   VIDEO = "video",
 }
@@ -38,3 +41,9 @@ export type klingImageGenModels =
   | "Kling-v2"
   | "Kling-v1-5"
   | "Kling-v1";
+
+export type ImageModel =
+  | googleImageGenModels
+  | openaiImageGenModels
+  | grokImageGenModels
+  | klingImageGenModels;

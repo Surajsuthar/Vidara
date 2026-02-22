@@ -1,6 +1,6 @@
 "use client";
 
-import { Folder, Settings2, SquareTerminal } from "lucide-react";
+import { Folder, ImagePlay, Settings2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import type * as React from "react";
 import { useMemo } from "react";
@@ -24,7 +24,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         title: "Playground",
         url: "/",
-        icon: SquareTerminal,
+        icon: ImagePlay,
         isActive: pathname === "/",
       },
       {
