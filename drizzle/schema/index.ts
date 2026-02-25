@@ -113,7 +113,7 @@ export const chatMetadata = pgTable(
     metaData: jsonb("meta_data").default(sql`'{}'::jsonb`),
     attachments: jsonb("attachments").default(sql`'{}'::jsonb`), // some reference images
     mediaType: varchar("media_type", { enum: ["image", "video"] }).notNull(),
-    model: text("model").notNull(),
+    modelName: text("model_name").notNull(),
     status: varchar("status", {
       enum: ["pending", "processing", "completed", "failed"],
     })
@@ -167,46 +167,6 @@ export const media = pgTable(
   ],
 );
 
-export const provider = pgTable("provider", {
-  id: text("id").primaryKey(),
-  slug: text("slug").notNull().unique(), // "google" | "openai" | "kling"
-  displayName: text("display_name").notNull(), // "Google DeepMind"
-  logoUrl: text("logo_url"),
-  isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
-
-export const model = pgTable(
-  "model",
-  {
-    id: text("id").primaryKey(),
-    providerId: text("provider_id")
-      .notNull()
-      .references(() => provider.id),
-    slug: text("slug").notNull().unique(), // "imagen-4.0-generate-001"
-    displayName: text("display_name").notNull(), // "Imagen 4"
-    description: text("description"),
-    capability: varchar("capability", {
-      enum: ["image", "video", "speech", "multimodal"],
-    }).notNull(),
-    isFeatured: boolean("is_featured").default(false).notNull(),
-    isActive: boolean("is_active").default(true).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => new Date())
-      .notNull(),
-  },
-  (t) => [
-    index("model_provider_idx").on(t.providerId),
-    index("model_capability_idx").on(t.capability),
-  ],
-);
-
 export const generation = pgTable(
   "generation",
   {
@@ -214,9 +174,6 @@ export const generation = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id),
-    modelId: text("model_id")
-      .notNull()
-      .references(() => model.id),
     // prompt info
     prompt: text("prompt").notNull(),
     negativePrompt: text("negative_prompt"),
@@ -250,7 +207,6 @@ export const generation = pgTable(
   (t) => [
     index("generation_user_idx").on(t.userId),
     index("generation_status_idx").on(t.status),
-    index("generation_model_idx").on(t.modelId),
     index("generation_created_idx").on(t.createdAt),
   ],
 );
@@ -263,8 +219,7 @@ export const userCredit = pgTable(
       .notNull()
       .references(() => user.id),
     credit: integer("credit").default(20).notNull(),
-    lifetimeEarned: integer("lifetime_earned").default(20).notNull(),
-    lifetimeSpent: integer("lifetime_spent").default(0).notNull(),
+    expire: timestamp("expire_at").notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
       .$onUpdate(() => new Date())
@@ -285,28 +240,42 @@ export const userRelations = relations(user, ({ many, one }) => ({
   }),
 }));
 
-export const providerRelations = relations(provider, ({ many }) => ({
-  models: many(model),
+export const chatRelations = relations(chat, ({ one, many }) => ({
+  user: one(user, {
+    fields: [chat.userId],
+    references: [user.id],
+  }),
+  messages: many(chatMetadata),
 }));
 
-export const modelRelations = relations(model, ({ one, many }) => ({
-  provider: one(provider, {
-    fields: [model.providerId],
-    references: [provider.id],
+export const chatMetadataRelations = relations(
+  chatMetadata,
+  ({ one, many }) => ({
+    chat: one(chat, { fields: [chatMetadata.chatId], references: [chat.id] }),
+    media: one(media, {
+      fields: [chatMetadata.mediaId],
+      references: [media.id],
+    }),
+    parent: one(chatMetadata, {
+      fields: [chatMetadata.parentId],
+      references: [chatMetadata.id],
+      relationName: "chatMetadata_parent",
+    }),
+    children: many(chatMetadata, {
+      relationName: "chatMetadata_parent",
+    }),
   }),
+);
+
+export const mediaRelations = relations(media, ({ one, many }) => ({
+  user: one(user, { fields: [media.userId], references: [user.id] }),
+  chatMetadata: many(chatMetadata),
   generations: many(generation),
 }));
 
 export const generationRelations = relations(generation, ({ one }) => ({
   user: one(user, { fields: [generation.userId], references: [user.id] }),
-  model: one(model, { fields: [generation.modelId], references: [model.id] }),
   media: one(media, { fields: [generation.mediaId], references: [media.id] }),
-}));
-
-export const chatRelation = relations(chat, ({ one, many }) => ({}));
-
-export const mediaRelations = relations(media, ({ one }) => ({
-  user: one(user, { fields: [media.userId], references: [user.id] }),
 }));
 
 export const userCreditRelations = relations(userCredit, ({ one }) => ({
@@ -318,7 +287,5 @@ export type Session = InferSelectModel<typeof session>;
 export type Account = InferSelectModel<typeof account>;
 export type Verification = InferSelectModel<typeof verification>;
 export type Media = InferSelectModel<typeof media>;
-export type Provider = InferSelectModel<typeof provider>;
-export type Model = InferSelectModel<typeof model>;
 export type Generation = InferSelectModel<typeof generation>;
 export type UserCredit = InferSelectModel<typeof userCredit>;

@@ -1,24 +1,44 @@
-import type { googleImageGenModels } from "../model";
+import { google } from "@ai-sdk/google";
+import { vertex } from "@ai-sdk/google-vertex";
+import { generateImage } from "ai";
+import type { ImageGenOptions, ImageGenResult, JSONObject } from "../types";
 
-export class GoogleModel {
-  private accessToken: string;
-  private modelName: googleImageGenModels;
-  private projectId: string;
-  private location: string;
+export async function generateGoogle(
+  opts: ImageGenOptions,
+  useVertex = false,
+): Promise<ImageGenResult> {
+  const start = Date.now();
 
-  constructor(
-    _accessToken: string,
-    _modelName: googleImageGenModels,
-    _projectId: string,
-    _location: string,
-  ) {
-    this.accessToken = _accessToken;
-    this.modelName = _modelName;
-    this.projectId = _projectId;
-    this.location = _location;
+  const modelId = opts.model.replace("google/", "").replace("vertex/", "");
+  const imageModel = useVertex ? vertex.image(modelId) : google.image(modelId);
+
+  const providerOptions: JSONObject = {};
+  if (opts.negativePrompt) {
+    providerOptions.negativePrompt = opts.negativePrompt;
+  }
+  if (opts.providerExtras) {
+    Object.assign(providerOptions, opts.providerExtras);
   }
 
-  private getEndpoint(): string {
-    return `https://${this.location}-aiplatform.googleapis.com/v1/projects/${this.projectId}/locations/${this.location}/publishers/google/models/${this.modelName}:predict`;
-  }
+  const { images, warnings } = await generateImage({
+    model: imageModel,
+    prompt: opts.prompt,
+    n: opts.n ?? 1,
+    aspectRatio: opts.aspectRatio ?? "1:1",
+    ...(opts.seed !== undefined ? { seed: opts.seed } : {}),
+    providerOptions: useVertex
+      ? { vertex: providerOptions }
+      : { google: providerOptions },
+  });
+
+  return {
+    model: opts.model,
+    durationMs: Date.now() - start,
+    warnings: warnings?.map((w) => String(w)) ?? [],
+    images: images.map((img) => ({
+      base64: img.base64,
+      uint8Array: img.uint8Array,
+      mimeType: "image/png",
+    })),
+  };
 }

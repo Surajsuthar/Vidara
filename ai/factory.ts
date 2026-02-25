@@ -1,30 +1,439 @@
-export type AspectRatio =
-  | "1:1"
-  | "2:3"
-  | "3:2"
-  | "4:5"
-  | "5:4"
-  | "9:16"
-  | "16:9"
-  | "21:9";
+import type { ImageModel, ModelMeta } from "./types";
 
-export type ImageQuality = "Low" | "High" | "Medium";
+export const MODEL_REGISTRY: Record<ImageModel, ModelMeta> = {
+  /**
+   * openai
+   */
+  "openai/dall-e-2": {
+    displayName: "DALL·E 2",
+    provider: "openai",
+    supportsAspectRatio: false,
+    supportsSize: true,
+    supportedSizes: ["256x256", "512x512", "1024x1024"],
+    supportsNegativePrompt: false,
+    supportsQuality: false,
+    supportsSeed: false,
+    maxBatchSize: 10,
+    defaultAspectRatio: "1:1",
+  },
+  "openai/dall-e-3": {
+    displayName: "DALL·E 3",
+    provider: "openai",
+    supportsAspectRatio: false,
+    supportsSize: true,
+    supportedSizes: ["1024x1024", "1792x1024", "1024x1792"],
+    supportsNegativePrompt: false,
+    supportsQuality: true,
+    supportsSeed: false,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+  "openai/gpt-image-1": {
+    displayName: "GPT Image 1",
+    provider: "openai",
+    supportsAspectRatio: false,
+    supportsSize: true,
+    supportedSizes: ["1024x1024", "1536x1024", "1024x1536"],
+    supportsNegativePrompt: false,
+    supportsQuality: true,
+    supportsSeed: false,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+  "openai/gpt-image-1-mini": {
+    displayName: "GPT Image Mini",
+    provider: "openai",
+    supportsAspectRatio: false,
+    supportsSize: true,
+    supportedSizes: ["1024x1024", "1536x1024", "1024x1536"],
+    supportsNegativePrompt: false,
+    supportsQuality: true,
+    supportsSeed: false,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+  "openai/gpt-image-1.5": {
+    displayName: "GPT Image 1.5",
+    provider: "openai",
+    supportsAspectRatio: false,
+    supportsSize: true,
+    supportedSizes: ["1024x1024", "1536x1024", "1024x1536"],
+    supportsNegativePrompt: false,
+    supportsQuality: true,
+    supportsSeed: false,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+  /**
+   * xai
+   */
+  "xai/grok-2-image": {
+    displayName: "Grok 2 Image",
+    provider: "xai",
+    supportsAspectRatio: false,
+    supportsSize: true,
+    supportedSizes: ["1024x768"],
+    supportsNegativePrompt: false,
+    supportsQuality: false,
+    supportsSeed: false,
+    maxBatchSize: 1,
+    defaultAspectRatio: "4:3",
+  },
+  /**
+   * google
+   */
+  "google/imagen-3.0-generate-001": {
+    displayName: "Imagen 3",
+    provider: "google",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "google/imagen-3.0-fast-generate-001": {
+    displayName: "Imagen 3 Fast",
+    provider: "google",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "google/imagen-4.0-generate-001": {
+    displayName: "Imagen 4",
+    provider: "google",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "google/imagen-4.0-fast-generate-001": {
+    displayName: "Imagen 4 Fast",
+    provider: "google",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "google/imagen-4.0-ultra-generate-001": {
+    displayName: "Imagen 4 Ultra",
+    provider: "google",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+  /**
+   * vertex google
+   */
+  "vertex/imagen-3.0-generate-001": {
+    displayName: "Imagen 3 (Vertex)",
+    provider: "vertex",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "vertex/imagen-4.0-generate-001": {
+    displayName: "Imagen 4 (Vertex)",
+    provider: "vertex",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "vertex/imagen-4.0-ultra-generate-001": {
+    displayName: "Imagen 4 Ultra (Vertex)",
+    provider: "vertex",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+  /**
+   * fal ai
+   */
+  "fal/flux-dev": {
+    displayName: "FLUX Dev",
+    provider: "fal",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: [
+      "1:1",
+      "3:4",
+      "4:3",
+      "9:16",
+      "16:9",
+      "9:21",
+      "21:9",
+    ],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "fal/flux-pro-ultra": {
+    displayName: "FLUX Pro Ultra",
+    provider: "fal",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: [
+      "1:1",
+      "3:4",
+      "4:3",
+      "9:16",
+      "16:9",
+      "9:21",
+      "21:9",
+    ],
+    supportsNegativePrompt: false,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+  "fal/flux-lora": {
+    displayName: "FLUX LoRA",
+    provider: "fal",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "fal/fast-sdxl": {
+    displayName: "Fast SDXL",
+    provider: "fal",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "fal/hyper-sdxl": {
+    displayName: "Hyper SDXL",
+    provider: "fal",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "fal/ideogram-v2": {
+    displayName: "Ideogram v2",
+    provider: "fal",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: false,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+  "fal/recraft-v3": {
+    displayName: "Recraft v3 (Fal)",
+    provider: "fal",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: false,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+  "fal/stable-diffusion-3.5-large": {
+    displayName: "SD 3.5 Large",
+    provider: "fal",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "3:4", "4:3", "9:16", "16:9"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  /**
+   * replicate
+   */
+  "replicate/flux-schnell": {
+    displayName: "FLUX Schnell",
+    provider: "replicate",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: [
+      "1:1",
+      "2:3",
+      "3:2",
+      "4:5",
+      "5:4",
+      "16:9",
+      "9:16",
+      "9:21",
+      "21:9",
+    ],
+    supportsNegativePrompt: false,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "replicate/recraft-v3": {
+    displayName: "Recraft v3",
+    provider: "replicate",
+    supportsAspectRatio: false,
+    supportsSize: true,
+    supportedSizes: ["1024x1024", "1365x1024", "1024x1365", "1536x1024"],
+    supportsNegativePrompt: false,
+    supportsQuality: false,
+    supportsSeed: false,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+  /**
+   * deepinfra
+   */
+  "deepinfra/flux-1.1-pro": {
+    displayName: "FLUX 1.1 Pro",
+    provider: "deepinfra",
+    supportsAspectRatio: false,
+    supportsSize: true,
+    supportsNegativePrompt: false,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+  "deepinfra/flux-1-schnell": {
+    displayName: "FLUX Schnell",
+    provider: "deepinfra",
+    supportsAspectRatio: false,
+    supportsSize: true,
+    supportsNegativePrompt: false,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "deepinfra/flux-1-dev": {
+    displayName: "FLUX Dev",
+    provider: "deepinfra",
+    supportsAspectRatio: false,
+    supportsSize: true,
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+  "deepinfra/flux-pro": {
+    displayName: "FLUX Pro",
+    provider: "deepinfra",
+    supportsAspectRatio: false,
+    supportsSize: true,
+    supportsNegativePrompt: false,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+  "deepinfra/sd3.5": {
+    displayName: "SD 3.5",
+    provider: "deepinfra",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "16:9", "3:2", "2:3", "4:5", "5:4", "9:16"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "deepinfra/sd3.5-medium": {
+    displayName: "SD 3.5 Medium",
+    provider: "deepinfra",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "16:9", "3:2", "2:3", "4:5", "5:4", "9:16"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  "deepinfra/sdxl-turbo": {
+    displayName: "SDXL Turbo",
+    provider: "deepinfra",
+    supportsAspectRatio: true,
+    supportsSize: false,
+    supportedAspectRatios: ["1:1", "16:9", "3:2", "2:3"],
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 4,
+    defaultAspectRatio: "1:1",
+  },
+  /**
+   * amazon
+   */
+  "bedrock/nova-canvas": {
+    displayName: "Nova Canvas",
+    provider: "bedrock",
+    supportsAspectRatio: false,
+    supportsSize: true,
+    supportsNegativePrompt: true,
+    supportsQuality: false,
+    supportsSeed: true,
+    maxBatchSize: 1,
+    defaultAspectRatio: "1:1",
+  },
+};
 
-export interface ImagenGenerateRequest {
-  prompt: string;
-  aspectRatio?: AspectRatio;
-  negativePrompt?: string;
-  seed?: number;
-  sampleCount?: number;
+export function getModelMeta(model: ImageModel): ModelMeta {
+  const meta = MODEL_REGISTRY[model];
+  if (!meta) throw new Error(`Model not found in registry: ${model}`);
+  return meta;
 }
-
-export interface ImagenImage {
-  mimeType: string;
-  bytesBase64Encoded: string;
-}
-
-export interface ImagenGenerateResponse {
-  images: ImagenImage[];
-}
-
-export class client {}

@@ -9,7 +9,6 @@ interface ImageItem {
   alt: string;
 }
 
-type media = "image" | "video";
 
 export default function MasonryInfiniteGallery() {
   const [images, setImages] = useState<ImageItem[]>([]);

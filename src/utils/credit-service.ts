@@ -3,7 +3,7 @@ import {
   ModelProvider,
   mediaType,
   type resourceType,
-} from "../../ai/model";
+} from "../../ai/types";
 
 type PricingKey = string;
 
@@ -24,7 +24,7 @@ export const modelPricingMatrix: Partial<
 modelPricingMatrix[ModelProvider.OPENAI] = [
   {
     media: mediaType.IMAGE,
-    modelName: "gpt-image-1.5",
+    modelName: "openai/gpt-image-1.5",
     resourceType: "text-to-image",
     pricing: {
       "quality:low|ratio:1:1": 0.009,
@@ -40,7 +40,7 @@ modelPricingMatrix[ModelProvider.OPENAI] = [
   },
   {
     media: mediaType.IMAGE,
-    modelName: "gpt-image-1",
+    modelName: "openai/gpt-image-1",
     resourceType: "text-to-image",
     pricing: {
       "quality:low|ratio:1:1": 0.011,
@@ -56,7 +56,7 @@ modelPricingMatrix[ModelProvider.OPENAI] = [
   },
   {
     media: mediaType.IMAGE,
-    modelName: "gpt-image-1-mini",
+    modelName: "openai/gpt-image-1-mini",
     resourceType: "text-to-image",
     pricing: {
       "quality:low|ratio:1:1": 0.005,
@@ -72,7 +72,7 @@ modelPricingMatrix[ModelProvider.OPENAI] = [
   },
   {
     media: mediaType.IMAGE,
-    modelName: "dall-e-3",
+    modelName: "openai/dall-e-3",
     resourceType: "text-to-image",
     pricing: {
       "quality:standard|ratio:1:1": 0.04,
@@ -85,7 +85,7 @@ modelPricingMatrix[ModelProvider.OPENAI] = [
   },
   {
     media: mediaType.IMAGE,
-    modelName: "dall-e-2",
+    modelName: "openai/dall-e-2",
     resourceType: "text-to-image",
     pricing: {
       "quality:standard|ratio:256:256": 0.016,
@@ -99,14 +99,14 @@ modelPricingMatrix[ModelProvider.GOOGLE] = [
   {
     media: mediaType.IMAGE,
     resourceType: "text-to-image",
-    modelName: "imagen-3.0-fast-generate-001",
+    modelName: "google/imagen-3.0-fast-generate-001",
     pricing: {
       default: 0.02,
     },
   },
   {
     media: mediaType.IMAGE,
-    modelName: "imagen-3.0-generate-002",
+    modelName: "google/imagen-3.0-generate-002",
     resourceType: "text-to-image",
     pricing: {
       default: 0.02,
@@ -114,7 +114,7 @@ modelPricingMatrix[ModelProvider.GOOGLE] = [
   },
   {
     media: mediaType.IMAGE,
-    modelName: "imagen-3.0-capability-001",
+    modelName: "vertex/imagen-3.0-capability-001",
     resourceType: "text-to-image",
     pricing: {
       default: 0.02,

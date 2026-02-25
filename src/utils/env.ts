@@ -12,7 +12,31 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string().min(1),
     GOOGLE_CLIENT_SECRET: z.string().min(1),
 
+    RESEND_API_KEY: z.string().min(1),
+    RESEND_FROM_EMAIL: z.string().min(1),
+
+    REDIS_HOST: z.string().min(1),
+    REDIS_PORT: z.number(),
+    REDIS_PASSWORD: z.string(),
+
     OPENAI_API_KEY: z.string().min(1),
+    XAI_API_KEY: z.string().min(1),
+    GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
+    GOOGLE_VERTEX_PROJECT: z.string().min(1),
+    GOOGLE_VERTEX_LOCATION: z.string().min(1),
+    FAL_API_KEY: z.string().min(1),
+    REPLICATE_API_TOKEN: z.string().min(1),
+    DEEPINFRA_API_TOKEN: z.string().min(1),
+    AWS_ACCESS_KEY_ID: z.string().min(1),
+    AWS_SECRET_ACCESS_KEY: z.string().min(1),
+    AWS_REGION: z.string().min(1),
+
+    CLOUDFLARE_ACCOUNT_ID: z.string().min(1),
+    R2_ACCESS_KEY_ID: z.string().min(1),
+    R2_SECRET_ACCESS_KEY: z.string().min(1),
+    R2_BUCKET_NAME: z.string().min(1),
+    R2_PUBLIC_URL: z.string().min(1),
+    R2_PRIVATE_BUCKET_NAME: z.string().min(1),
   },
 
   /**
