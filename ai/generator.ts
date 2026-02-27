@@ -6,7 +6,7 @@ import { generateGoogle } from "./providers/google";
 import { generateOpenAI } from "./providers/openai";
 import { generateReplicate } from "./providers/replicate";
 import { generateXai } from "./providers/xai";
-import type { ImageGenOptions, ImageGenResult, ImageModel } from "./types";
+import type { ImageGenOptions, ImageGenResult } from "./types";
 
 export async function generate(opts: ImageGenOptions): Promise<ImageGenResult> {
   const meta = getModelMeta(opts.model);

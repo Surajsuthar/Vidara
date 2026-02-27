@@ -85,8 +85,8 @@ export default function AuthWrapper() {
         )}
       </CardContent>
 
-      <CardFooter className="border-t">
-        <div className="w-full text-center py-4 text-xs">
+      <CardFooter className="border-t flex flex-col">
+        <div className="w-full text-center py-4 text-sm">
           Built in Public by{" "}
           <Link
             href="https://vidara.in"
@@ -95,6 +95,13 @@ export default function AuthWrapper() {
           >
             VIDARA
             <Icons.Heart />
+          </Link>
+        </div>
+        <div className="text-[10px]">
+          By Singup, you agree to our Terms and{" "}
+          <Link className="font-bold hover:underline" href="/privacy-policy">
+            {" "}
+            Privacy Policy
           </Link>
         </div>
       </CardFooter>

@@ -16,7 +16,7 @@ export const env = createEnv({
     RESEND_FROM_EMAIL: z.string().min(1),
 
     REDIS_HOST: z.string().min(1),
-    REDIS_PORT: z.number(),
+    REDIS_PORT: z.string().min(1),
     REDIS_PASSWORD: z.string(),
 
     OPENAI_API_KEY: z.string().min(1),

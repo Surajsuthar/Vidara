@@ -19,7 +19,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session, isPending } = useSession();
   const pathname = usePathname();
 
-  const mainNav = useMemo(
+  const authNav = useMemo(
     () => [
       {
         title: "Playground",
@@ -46,8 +46,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader></SidebarHeader>
+
       <SidebarContent>
-        <NavMain items={mainNav} />
+        {!isPending && session?.user && <NavMain items={authNav} />}
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
