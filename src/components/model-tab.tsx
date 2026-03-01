@@ -1,6 +1,7 @@
 "use client";
 
-import { Cloud } from "lucide-react";
+import { ChevronLeft, ChevronRight, Cloud } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Icons } from "@/lib/icons";
 import { MODEL_REGISTRY } from "../../ai/factory";
@@ -56,24 +57,95 @@ interface ModeltabProps {
 
 export function Modeltab({ selectedModel, onSelectModel }: ModeltabProps) {
   const defaultTab = PROVIDER_TABS[0]?.value ?? ModelProvider.GOOGLE;
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    checkScroll();
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    const ro = new ResizeObserver(checkScroll);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", checkScroll);
+      ro.disconnect();
+    };
+  }, [checkScroll]);
+
+  const scroll = (dir: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir === "left" ? -120 : 120, behavior: "smooth" });
+  };
 
   return (
     <Tabs defaultValue={defaultTab} className="w-full">
-      <TabsList className="h-auto w-full justify-start rounded-lg bg-[#2a2a2a] p-1 gap-1 overflow-x-auto flex-nowrap">
-        {PROVIDER_TABS.map(({ value, icon: Icon }) => (
-          <TabsTrigger
-            key={value}
-            value={value}
-            className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white"
-          >
-            <Icon className="size-3.5 shrink-0" />
-            <span>
-              {PROVIDER_LABELS[value] ??
-                value.charAt(0).toUpperCase() + value.slice(1)}
-            </span>
-          </TabsTrigger>
-        ))}
-      </TabsList>
+      {/* Scroll wrapper */}
+      <div className="relative flex items-center rounded-lg bg-[#2a2a2a]">
+        {/* Left arrow */}
+        <button
+          type="button"
+          onClick={() => scroll("left")}
+          aria-label="Scroll left"
+          className={`
+            absolute left-0 z-10 flex h-full items-center px-1
+            rounded-l-lg bg-gradient-to-r from-[#2a2a2a] via-[#2a2a2a]/80 to-transparent
+            transition-opacity duration-150
+            ${canScrollLeft ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
+          `}
+        >
+          <ChevronLeft className="size-3.5 text-white/60" />
+        </button>
+
+        {/* Scrollable TabsList */}
+        <div
+          ref={scrollRef}
+          className="flex w-full overflow-x-auto scrollbar-none p-1 gap-1 px-6"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          <TabsList className="h-auto w-max min-w-full justify-start rounded-none bg-transparent p-0 gap-1 flex-nowrap">
+            {PROVIDER_TABS.map(({ value, icon: Icon }) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white shrink-0"
+              >
+                <Icon className="size-3.5 shrink-0" />
+                <span>
+                  {PROVIDER_LABELS[value] ??
+                    value.charAt(0).toUpperCase() + value.slice(1)}
+                </span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
+
+        {/* Right arrow */}
+        <button
+          type="button"
+          onClick={() => scroll("right")}
+          aria-label="Scroll right"
+          className={`
+            absolute right-0 z-10 flex h-full items-center px-1
+            rounded-r-lg bg-gradient-to-l from-[#2a2a2a] via-[#2a2a2a]/80 to-transparent
+            transition-opacity duration-150
+            ${canScrollRight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
+          `}
+        >
+          <ChevronRight className="size-3.5 text-white/60" />
+        </button>
+      </div>
+
+      {/* Tab content */}
       {PROVIDER_TABS.map(({ value }) => {
         const models = getModelsByProvider(value);
         return (
