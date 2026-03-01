@@ -127,10 +127,16 @@ export const Icons = {
     </SvgWrapper>
   ),
   DeepInfra: ({ title = "DeepInfra Logo", ...props }: IconProps) => (
-    <SvgWrapper viewBox="0 0 174 32" title={title} {...props}>
-      <circle cx="16" cy="16" r="6" fill="currentColor" />
-      <circle cx="48" cy="16" r="6" fill="currentColor" />
-      <circle cx="80" cy="16" r="6" fill="currentColor" />
+    <SvgWrapper
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      title={title}
+      {...props}
+    >
+      {/* Three stacked bars, each shorter and offset left — the DeepInfra pyramid mark */}
+      <rect x="4" y="4" width="16" height="4" rx="1" />
+      <rect x="4" y="10" width="11" height="4" rx="1" />
+      <rect x="4" y="16" width="6" height="4" rx="1" />
     </SvgWrapper>
   ),
 };

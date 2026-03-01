@@ -98,7 +98,7 @@ export function Modeltab({ selectedModel, onSelectModel }: ModeltabProps) {
           aria-label="Scroll left"
           className={`
             absolute left-0 z-10 flex h-full items-center px-1
-            rounded-l-lg bg-gradient-to-r from-[#2a2a2a] via-[#2a2a2a]/80 to-transparent
+            rounded-l-lg bg-linear-to-r from-[#2a2a2a] via-[#2a2a2a]/80 to-transparent
             transition-opacity duration-150
             ${canScrollLeft ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
           `}
@@ -136,7 +136,7 @@ export function Modeltab({ selectedModel, onSelectModel }: ModeltabProps) {
           aria-label="Scroll right"
           className={`
             absolute right-0 z-10 flex h-full items-center px-1
-            rounded-r-lg bg-gradient-to-l from-[#2a2a2a] via-[#2a2a2a]/80 to-transparent
+            rounded-r-lg bg-linear-to-l from-[#2a2a2a] via-[#2a2a2a]/80 to-transparent
             transition-opacity duration-150
             ${canScrollRight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
           `}

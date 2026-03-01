@@ -1,9 +1,10 @@
 "use client";
 
-import { ChevronDown, Plus } from "lucide-react";
+import { ChevronDown, CircleChevronUp, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { MODEL_REGISTRY } from "@/../ai/factory";
-import type { ImageModel } from "@/../ai/types";
+import { MODEL_REGISTRY } from "@/ai/factory";
+import type { ImageModel } from "@/ai/types";
+import ImageConfig from "./image-config";
 import { Modeltab } from "./model-tab";
 
 const DEFAULT_MODEL: ImageModel = "xai/grok-2-image";
@@ -13,6 +14,7 @@ export default function ChatInterface() {
   const [selectedModel, setSelectedModel] = useState<ImageModel>(DEFAULT_MODEL);
   const [showModels, setShowModels] = useState(false);
   const [showAttach, setShowAttach] = useState(false);
+  const [showImageConfig, setShowImageConfig] = useState(false);
   const textareaRef = useRef(null);
   const modelRef = useRef(null);
   const attachRef = useRef(null);
@@ -43,7 +45,7 @@ export default function ChatInterface() {
   // };
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] flex flex-col items-center justify-center px-4">
+    <div className="absolute bottom-0 left-0 right-0 bg-[#0d0d0d] flex flex-col items-center justify-end px-4">
       <div className="w-full max-w-3xl space-y-5  bg-white/10 dark:bg-white/5 backdrop-blur-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.37)]">
         <div className="bg-[#1a1a1a] rounded-none px-4 pt-4 pb-3 ring-1 ring-white/5 shadow-2xl transition-all duration-200 focus-within:ring-white/10">
           <textarea
@@ -86,6 +88,24 @@ export default function ChatInterface() {
                         setShowModels(false);
                       }}
                     />
+                  </div>
+                )}
+              </div>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowImageConfig((p) => !p)}
+                  className="w-8 h-8 flex ease-in-out items-center justify-center transition-colors"
+                >
+                  <CircleChevronUp
+                    size={24}
+                    className={`text-[#888] hover:text-[#bbb] transition-transform ${showImageConfig ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {showImageConfig && (
+                  <div className="absolute bottom-10 left-0 bg-[#222] border border-white/10 rounded-xl p-1 shadow-xl min-w-[130px] z-50">
+                    <ImageConfig />
                   </div>
                 )}
               </div>
