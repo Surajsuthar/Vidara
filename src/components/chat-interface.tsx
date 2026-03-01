@@ -1,10 +1,15 @@
 "use client";
 
-import { ChevronDown, CircleChevronUp, Plus } from "lucide-react";
+import { ChevronDown, CircleChevronUp, Image } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { MODEL_REGISTRY } from "@/ai/factory";
 import type { ImageModel } from "@/ai/types";
-import ImageConfig from "./image-config";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import ImageConfig from "./model-config";
 import { Modeltab } from "./model-tab";
 
 const DEFAULT_MODEL: ImageModel = "xai/grok-2-image";
@@ -45,7 +50,7 @@ export default function ChatInterface() {
   // };
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-[#0d0d0d] flex flex-col items-center justify-end px-4">
+    <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center justify-end px-4">
       <div className="w-full max-w-3xl space-y-5  bg-white/10 dark:bg-white/5 backdrop-blur-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.37)]">
         <div className="bg-[#1a1a1a] rounded-none px-4 pt-4 pb-3 ring-1 ring-white/5 shadow-2xl transition-all duration-200 focus-within:ring-white/10">
           <textarea
@@ -91,49 +96,52 @@ export default function ChatInterface() {
                   </div>
                 )}
               </div>
-              <div className="relative">
+              <DropdownMenu
+                open={showImageConfig}
+                onOpenChange={setShowImageConfig}
+              >
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="w-8 h-8 flex ease-in-out items-center justify-center transition-colors"
+                  >
+                    <CircleChevronUp
+                      size={24}
+                      className={`text-[#888] hover:text-[#bbb] transition-transform ${showImageConfig ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="min-w-[130px] bg-[#222] border-white/10"
+                  align="start"
+                  side="top"
+                  sideOffset={8}
+                >
+                  <ImageConfig
+                    config={{
+                      aspectRatio: "1:1",
+                      width: 1024,
+                      height: 1024,
+                      quality: "standard",
+                      outputFormat: "png",
+                      seed: 1234567890,
+                      n: 1,
+                    }}
+                    onChange={(updated) => {
+                      console.log(updated);
+                    }}
+                  />
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <div className="relative" ref={attachRef}>
                 <button
                   type="button"
-                  onClick={() => setShowImageConfig((p) => !p)}
-                  className="w-8 h-8 flex ease-in-out items-center justify-center transition-colors"
+                  onClick={() => setShowAttach((p) => !p)}
+                  className="w-8 h-8 rounded-full bg-[#2a2a2a] hover:bg-[#333] flex items-center justify-center text-[#888] hover:text-[#bbb] transition-colors"
                 >
-                  <CircleChevronUp
-                    size={24}
-                    className={`text-[#888] hover:text-[#bbb] transition-transform ${showImageConfig ? "rotate-180" : ""}`}
-                  />
+                  <Image size={16} />
                 </button>
-
-                {showImageConfig && (
-                  <div className="absolute bottom-10 left-0 bg-[#222] border border-white/10 rounded-xl p-1 shadow-xl min-w-[130px] z-50">
-                    <ImageConfig />
-                  </div>
-                )}
               </div>
-            </div>
-            {/* Left — Attach */}
-            <div className="relative" ref={attachRef}>
-              <button
-                type="button"
-                onClick={() => setShowAttach((p) => !p)}
-                className="w-8 h-8 rounded-full bg-[#2a2a2a] hover:bg-[#333] flex items-center justify-center text-[#888] hover:text-[#bbb] transition-colors"
-              >
-                <Plus size={16} />
-              </button>
-
-              {showAttach && (
-                <div className="absolute bottom-10 left-0 bg-[#222] border border-white/10 rounded-xl p-1 shadow-xl min-w-[130px] z-50">
-                  {["Image", "File", "Link"].map((item) => (
-                    <button
-                      type="button"
-                      key={item}
-                      onClick={() => setShowAttach(false)}
-                      className="w-full text-left px-3 py-2 text-sm text-[#aaa] hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         </div>
