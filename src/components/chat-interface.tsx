@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ImageConfig from "./model-config";
 import { Modeltab } from "./model-tab";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 const DEFAULT_MODEL: ImageModel = "xai/grok-2-image";
 
@@ -23,6 +24,7 @@ export default function ChatInterface() {
   const textareaRef = useRef(null);
   const modelRef = useRef(null);
   const attachRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -134,13 +136,31 @@ export default function ChatInterface() {
                 </DropdownMenuContent>
               </DropdownMenu>
               <div className="relative" ref={attachRef}>
-                <button
-                  type="button"
-                  onClick={() => setShowAttach((p) => !p)}
-                  className="w-8 h-8 rounded-full bg-[#2a2a2a] hover:bg-[#333] flex items-center justify-center text-[#888] hover:text-[#bbb] transition-colors"
-                >
-                  <Image size={16} />
-                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target?.files?.[0];
+                    // handle your file here
+                    console.log("file", file);
+                  }}
+                />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-8 h-8 rounded-full bg-[#2a2a2a] hover:bg-[#333] flex items-center justify-center text-[#888] hover:text-[#bbb] transition-colors"
+                    >
+                      <Image size={16} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Attach an image</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </div>
