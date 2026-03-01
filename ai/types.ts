@@ -122,7 +122,9 @@ export interface ImageGenOptions {
   providerExtras?: JSONObject; // passthrough for provider-specific opts
 }
 
-// ── What the generator returns ─────────────────────────────────
+/**
+ * What the generator returns
+ */
 export interface ImageGenResult {
   images: GeneratedImage[];
   model: ImageModel;
@@ -138,7 +140,9 @@ export interface GeneratedImage {
   height?: number;
 }
 
-// ── Per-model static metadata ──────────────────────────────────
+/**
+ * Per-model static metadata
+ */
 export interface ModelMeta {
   displayName: string;
   provider: string;

@@ -39,7 +39,7 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
               <Button variant="outline" size="sm">
                 <Link
                   className="flex justify-center items-center gap-0.5"
-                  href={"#"}
+                  href={"https://github.com/Surajsuthar/Vidara"}
                   target="_blank"
                 >
                   <Github />

@@ -1,5 +1,10 @@
+import z from "zod";
 import { Errors, wrapError } from "@/lib/error";
 import { getClientInfo, rateLimit } from "@/lib/utils";
+
+const generateRequestSchema = z.object({
+  prompt: z.string(),
+});
 
 export async function POST(req: Request) {
   try {
