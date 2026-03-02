@@ -22,3 +22,17 @@ export function getClientInfo(req: Request): string {
   const realIp = req.headers.get("x-real-ip");
   return forwarded?.split(",")[0] ?? realIp ?? "unknown";
 }
+
+export const getSize = (size: string) => {
+  if (!size) return undefined;
+  const parts = size.split("x");
+
+  if (parts.length !== 2) return undefined;
+  const width = Number(parts[0]);
+  const height = Number(parts[1]);
+
+  if (isNaN(width) || isNaN(height)) return undefined;
+
+  const imageSize = `${width}x${height}` as `${number}x${number}`;
+  return imageSize;
+};

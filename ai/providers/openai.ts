@@ -1,13 +1,16 @@
 import { openai } from "@ai-sdk/openai";
 import { generateImage } from "ai";
+import { getSize } from "@/lib/utils";
 import type { ImageGenOptions, ImageGenResult, JSONObject } from "../types";
 
 const qualityMap: Record<string, string> = {
   low: "low",
-  standard: "medium",
-  hd: "high",
-  ultra: "high",
+  standard: "standard",
+  high: "high",
+  medium: "medium",
 };
+
+export type style = "vivid" | "natural";
 
 export async function generateOpenAI(
   opts: ImageGenOptions,
@@ -19,11 +22,8 @@ export async function generateOpenAI(
   // dall-e-3 & dall-e-2 use size strings, gpt-image-* use quality
   const isLegacy = modelId === "dall-e-2" || modelId === "dall-e-3";
 
-  const size =
-    opts.width && opts.height
-      ? (`${opts.width}x${opts.height}` as `${number}x${number}`)
-      : undefined;
-
+  const size = opts.size ? getSize(opts.size) : undefined;
+  
   const providerOptions: JSONObject = {};
 
   if (!isLegacy && opts.quality) {

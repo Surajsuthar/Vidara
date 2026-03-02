@@ -13,9 +13,22 @@ export type AspectRatio =
   | "4:5"
   | "5:4"
   | "9:21"
-  | "21:9";
+  | "21:9"
+  | "2:1"
+  | "1:2"
+  | "19.5:9"
+  | "9:19.5"
+  | "20:9"
+  | "9:20";
 
-export type QualityTier = "low" | "standard" | "hd" | "ultra";
+export type QualityTier =
+  | "low"
+  | "standard"
+  | "hd"
+  | "ultra"
+  | "premium"
+  | "medium"
+  | "high";
 
 export type ImageOutputFormat = "png" | "webp" | "jpeg";
 
@@ -45,7 +58,10 @@ export type googleImageGenModels =
   // Google Vertex (same Imagen models, different auth)
   | "vertex/imagen-3.0-generate-001"
   | "vertex/imagen-4.0-generate-001"
-  | "vertex/imagen-4.0-ultra-generate-001";
+  | "vertex/imagen-4.0-ultra-generate-001"
+  //gemini
+  | "google/gemini-2.5-flash-image"
+  | "google/gemini-3-pro-image-preview";
 
 export type openaiImageGenModels =
   | "openai/dall-e-2"
@@ -54,10 +70,7 @@ export type openaiImageGenModels =
   | "openai/gpt-image-1-mini"
   | "openai/gpt-image-1.5";
 
-export type grokImageGenModels =
-  | "grok-imagine-image-pro"
-  | "grok-imagine-image"
-  | "grok-2-image-1212";
+export type grokImageGenModels = "grok-imagine-image-pro" | "grok-2-image-1212";
 
 export type klingImageGenModels =
   | "Kling-image-o1"
@@ -66,7 +79,7 @@ export type klingImageGenModels =
   | "Kling-v1-5"
   | "Kling-v1";
 
-export type xAiImageGenModel = "xai/grok-2-image";
+export type xAiImageGenModel = "xai/grok-2-image" | "xai/grok-imagine-image";
 
 export type falImageGenModel =
   | "fal/flux-dev"
@@ -111,11 +124,11 @@ export type JSONObject = {
 export interface ImageGenOptions {
   model: ImageModel;
   prompt: string;
+  images?: string[];
   negativePrompt?: string;
   n?: number; // batch size, default 1
   aspectRatio?: AspectRatio;
-  width?: number;
-  height?: number;
+  size?: string;
   quality?: QualityTier;
   outputFormat?: ImageOutputFormat;
   seed?: number;
@@ -146,13 +159,16 @@ export interface GeneratedImage {
 export interface ModelMeta {
   displayName: string;
   provider: string;
+  editImage: boolean;
   supportsAspectRatio: boolean;
   supportsSize: boolean;
   supportedSizes?: string[];
   supportedAspectRatios?: AspectRatio[];
   supportsNegativePrompt: boolean;
   supportsQuality: boolean;
+  quality?: QualityTier[];
   supportsSeed: boolean;
   maxBatchSize: number;
-  defaultAspectRatio: AspectRatio;
+  defaultAspectRatio?: AspectRatio;
+  defualtSize?: string;
 }

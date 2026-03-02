@@ -50,7 +50,7 @@ function validateOptions(
     );
   }
 
-  if ((opts.width || opts.height) && !meta.supportsSize) {
+  if (opts.size && !meta.supportsSize) {
     throw new Error(
       `Model ${opts.model} does not support size. Use aspectRatio instead.`,
     );

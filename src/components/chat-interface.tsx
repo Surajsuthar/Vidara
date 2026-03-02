@@ -2,7 +2,7 @@
 
 import { ChevronDown, CircleChevronUp, Image } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { MODEL_REGISTRY } from "@/ai/factory";
+import { getModelMeta, MODEL_REGISTRY } from "@/ai/factory";
 import type { ImageModel } from "@/ai/types";
 import {
   DropdownMenu,
@@ -25,6 +25,11 @@ export default function ChatInterface() {
   const modelRef = useRef(null);
   const attachRef = useRef(null);
   const fileInputRef = useRef(null);
+  console.log("selectedModel", selectedModel);
+
+  const modelMetaData = getModelMeta(selectedModel);
+
+  console.log("modelMetaData", modelMetaData);
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -120,10 +125,10 @@ export default function ChatInterface() {
                   sideOffset={8}
                 >
                   <ImageConfig
+                    modelConfig={modelMetaData}
                     config={{
                       aspectRatio: "1:1",
-                      width: 1024,
-                      height: 1024,
+                      size: "1024x1024",
                       quality: "standard",
                       outputFormat: "png",
                       seed: 1234567890,

@@ -1,17 +1,19 @@
 import { xai } from "@ai-sdk/xai";
 import { generateImage } from "ai";
+import { getSize } from "@/lib/utils";
 import type { ImageGenOptions, ImageGenResult } from "../types";
 
 export async function generateXai(
   opts: ImageGenOptions,
 ): Promise<ImageGenResult> {
   const start = Date.now();
+  const modelId = opts.model.replace("xai/", "");
 
   const { images, warnings } = await generateImage({
-    model: xai.image("grok-2-image"),
+    model: xai.image(modelId),
     prompt: opts.prompt,
     n: opts.n ?? 1,
-    size: "1024x768",
+    aspectRatio: opts.aspectRatio,
     ...(opts.seed !== undefined ? { seed: opts.seed } : {}),
     providerOptions: { xai: opts.providerExtras ?? {} },
   });

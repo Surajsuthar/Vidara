@@ -9,11 +9,12 @@ import {
   SquareIcon,
   TvIcon,
 } from "lucide-react";
-
+import { useCallback } from "react";
 import type {
   AspectRatio,
   ImageGenOptions,
   ImageOutputFormat,
+  ModelMeta,
   QualityTier,
 } from "@/ai/types";
 import {
@@ -87,9 +88,12 @@ function RatioBox({
 
 const QUALITY_BARS: Record<QualityTier, number> = {
   low: 1,
-  standard: 2,
-  hd: 3,
-  ultra: 4,
+  medium: 2,
+  standard: 3,
+  hd: 4,
+  high: 5,
+  ultra: 5,
+  premium: 6,
 };
 
 function QualityBars({ tier }: { tier: QualityTier }) {
@@ -182,13 +186,6 @@ const ASPECT_RATIO_OPTIONS: { value: AspectRatio; label: string }[] = [
   { value: "21:9", label: "Ultrawide" },
 ];
 
-const QUALITY_TIERS: { value: QualityTier; label: string }[] = [
-  { value: "low", label: "Low" },
-  { value: "standard", label: "Standard" },
-  { value: "hd", label: "HD" },
-  { value: "ultra", label: "Ultra" },
-];
-
 const OUTPUT_FORMATS: {
   value: ImageOutputFormat;
   label: string;
@@ -200,181 +197,196 @@ const OUTPUT_FORMATS: {
 
 const BATCH_SIZES = [1, 2, 4];
 
-const DIM_PRESETS = [
-  { label: "512 × 512", w: 512, h: 512 },
-  { label: "768 × 768", w: 768, h: 768 },
-  { label: "1024 × 1024", w: 1024, h: 1024 },
-  { label: "1024 × 576", w: 1024, h: 576 },
-  { label: "576 × 1024", w: 576, h: 1024 },
-  { label: "1280 × 720", w: 1280, h: 720 },
-];
-
 type ImageConfigState = Pick<
   ImageGenOptions,
-  "aspectRatio" | "width" | "height" | "quality" | "outputFormat" | "seed" | "n"
+  "aspectRatio" | "size" | "quality" | "outputFormat" | "seed" | "n"
 >;
 
 interface ImageConfigProps {
+  modelConfig: ModelMeta;
   config: ImageConfigState;
   onChange: (updated: Partial<ImageConfigState>) => void;
 }
 
 const is = (val: unknown, target: unknown) => val === target;
 
-export default function ImageConfig({ config, onChange }: ImageConfigProps) {
+export default function ImageConfig({
+  modelConfig,
+  config,
+  onChange,
+}: ImageConfigProps) {
   const activeRatio = ASPECT_RATIO_OPTIONS.find(
     (r) => r.value === config.aspectRatio,
   );
-  const activeQuality = QUALITY_TIERS.find((q) => q.value === config.quality);
+  const activeQuality = modelConfig.quality?.find((q) => q === config.quality);
   const activeFormat = OUTPUT_FORMATS.find(
     (f) => f.value === config.outputFormat,
   );
+  const activeSize = modelConfig.supportedSizes?.find((sz) => sz === config.size);
   const batchN = config.n ?? 1;
+
+  const getSize = useCallback((size: string) => {
+    const [width, height] = size.split("x").map(Number);
+    return { width, height };
+  }, []);
+
+  const activeSizeDimention = getSize(activeSize ?? "");
+
+  console.log("modelConfig.supportedSizes", modelConfig.supportedSizes);
 
   return (
     <>
-      <DropdownMenuGroup>
-        <DropdownMenuLabel className="flex items-center gap-1.5">
-          <RatioIcon size={12} className="opacity-60" />
-          Aspect Ratio
-        </DropdownMenuLabel>
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger className="flex items-center gap-2">
-            {activeRatio ? (
-              <>
-                <RatioBox ratio={activeRatio.value} />
-                <span>{activeRatio.value}</span>
-                <span className="text-xs opacity-50">
-                  · {activeRatio.label}
-                </span>
-              </>
-            ) : (
-              <>
-                <RatioBox ratio="1:1" />
-                <span className="opacity-50">Select ratio</span>
-              </>
-            )}
-          </DropdownMenuSubTrigger>
-          <DropdownMenuPortal>
-            <DropdownMenuSubContent className="min-w-[210px]">
-              {ASPECT_RATIO_OPTIONS.map(({ value, label }) => (
-                <DropdownMenuItem
-                  key={value}
-                  onSelect={() => onChange({ aspectRatio: value })}
-                  className={`flex items-center gap-2.5 ${is(config.aspectRatio, value) ? "bg-accent" : ""}`}
-                >
-                  {/* Visual ratio rectangle */}
-                  {/* <RatioBox ratio={value} /> */}
-
-                  {/* Orientation micro-icon */}
-                  {ratioIcon(value)}
-                  {/* Ratio string */}
-                  <span
-                    className={`font-mono text-xs ${is(config.aspectRatio, value) ? "font-semibold" : ""}`}
-                  >
-                    {value}
+      {modelConfig.supportedAspectRatios && (
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="flex items-center gap-1.5">
+            <RatioIcon size={12} className="opacity-60" />
+            Aspect Ratio
+          </DropdownMenuLabel>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="flex items-center gap-2">
+              {activeRatio ? (
+                <>
+                  <RatioBox ratio={activeRatio.value} />
+                  <span>{activeRatio.value}</span>
+                  <span className="text-xs opacity-50">
+                    · {activeRatio.label}
                   </span>
-                  {/* Human label */}
-                  <span className="text-xs opacity-50 truncate">{label}</span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuSubContent>
-          </DropdownMenuPortal>
-        </DropdownMenuSub>
-      </DropdownMenuGroup>
-
-      <DropdownMenuSeparator />
-
-      <DropdownMenuGroup>
-        <DropdownMenuLabel className="flex items-center gap-1.5">
-          <RulerIcon size={12} className="opacity-60" />
-          Dimensions
-        </DropdownMenuLabel>
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger className="flex items-center justify-between gap-2">
-            {config.width && config.height ? (
-              <>
-                <DimIcon w={config.width} h={config.height} />
-                <span className="font-mono text-xs">
-                  {config.width} × {config.height}
-                </span>
-              </>
-            ) : (
-              <>
-                <RulerIcon size={13} className="opacity-40" />
-                <span className="opacity-50">Custom size</span>
-              </>
-            )}
-          </DropdownMenuSubTrigger>
-          <DropdownMenuPortal>
-            <DropdownMenuSubContent className="min-w-[190px]">
-              {DIM_PRESETS.map(({ label, w, h }) => {
-                const active = is(config.width, w) && is(config.height, h);
-                return (
+                </>
+              ) : (
+                <>
+                  <RatioBox ratio="1:1" />
+                  <span className="opacity-50">Select ratio</span>
+                </>
+              )}
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent className="min-w-[210px]">
+                {ASPECT_RATIO_OPTIONS.map(({ value, label }) => (
                   <DropdownMenuItem
-                    key={label}
-                    onSelect={() => {
-                      onChange({ width: w, height: h });
-                    }}
-                    className={`flex items-center gap-2.5 ${active ? "bg-accent" : ""}`}
+                    key={value}
+                    onSelect={() => onChange({ aspectRatio: value })}
+                    className={`flex items-center gap-2.5 ${is(config.aspectRatio, value) ? "bg-accent" : ""}`}
                   >
-                    <DimIcon w={w} h={h} />
+                    {/* Visual ratio rectangle */}
+                    {/* <RatioBox ratio={value} /> */}
+
+                    {/* Orientation micro-icon */}
+                    {ratioIcon(value)}
+                    {/* Ratio string */}
                     <span
-                      className={`font-mono text-xs ${active ? "font-semibold" : ""}`}
+                      className={`font-mono text-xs ${is(config.aspectRatio, value) ? "font-semibold" : ""}`}
                     >
-                      {w} × {h}
+                      {value}
                     </span>
+                    {/* Human label */}
+                    <span className="text-xs opacity-50 truncate">{label}</span>
                   </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuSubContent>
-          </DropdownMenuPortal>
-        </DropdownMenuSub>
-      </DropdownMenuGroup>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+        </DropdownMenuGroup>
+      )}
 
-      <DropdownMenuSeparator />
+      {modelConfig.supportsSize && (
+        <>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="flex items-center gap-1.5">
+              <RulerIcon size={12} className="opacity-60" />
+              Dimensions
+            </DropdownMenuLabel>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="flex items-center justify-between gap-2">
+                {activeSize ? (
+                  <>
+                    <DimIcon
+                      w={activeSizeDimention.width}
+                      h={activeSizeDimention.height}
+                    />
+                    <span className="font-mono text-xs">
+                      {activeSizeDimention.width} × {activeSizeDimention.height}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <RulerIcon size={13} className="opacity-40" />
+                    <span className="opacity-50">Custom size</span>
+                  </>
+                )}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent className="min-w-[150px]">
+                  {modelConfig.supportedSizes?.map((size) => {
+                    const { width, height } = getSize(size);
+                    return (
+                      <DropdownMenuItem
+                        key={size}
+                        // onSelect={() => {
+                        //   onChange({ width: width, height: height });
+                        // }}
+                        className={`flex items-center gap-2.5 ${activeSize ? "bg-accent" : ""}`}
+                      >
+                        <DimIcon w={width} h={height} />
+                        <span
+                          className={`font-mono text-xs ${activeSize ? "font-semibold" : ""}`}
+                        >
+                          {width} × {height}
+                        </span>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+        </>
+      )}
 
-      <DropdownMenuGroup>
-        <DropdownMenuLabel className="flex items-center gap-1.5">
-          <SparklesIcon size={12} className="opacity-60" />
-          Quality
-        </DropdownMenuLabel>
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger className="flex items-center justify-around gap-2">
-            {activeQuality ? (
-              <>
-                <QualityBars tier={activeQuality.value} />
-                <span>{activeQuality.label}</span>
-              </>
-            ) : (
-              <>
-                <QualityBars tier="standard" />
-                <span className="opacity-50">Select quality</span>
-              </>
-            )}
-          </DropdownMenuSubTrigger>
-          <DropdownMenuPortal>
-            <DropdownMenuSubContent className="min-w-[190px]">
-              {QUALITY_TIERS.map(({ value, label }) => (
-                <DropdownMenuItem
-                  key={value}
-                  onSelect={() => onChange({ quality: value })}
-                  className={`flex items-center gap-2.5 ${is(config.quality, value) ? "bg-accent" : ""}`}
-                >
-                  <QualityBars tier={value} />
-                  <span
-                    className={`text-sm ${is(config.quality, value) ? "font-semibold" : ""}`}
-                  >
-                    {label}
-                  </span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuSubContent>
-          </DropdownMenuPortal>
-        </DropdownMenuSub>
-      </DropdownMenuGroup>
-
-      <DropdownMenuSeparator />
+      {modelConfig.supportsQuality && (
+        <>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="flex items-center gap-1.5">
+              <SparklesIcon size={12} className="opacity-60" />
+              Quality
+            </DropdownMenuLabel>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="flex items-center justify-around gap-2">
+                {activeQuality ? (
+                  <>
+                    <QualityBars tier={activeQuality} />
+                    <span>{activeQuality}</span>
+                  </>
+                ) : (
+                  <>
+                    <QualityBars tier="standard" />
+                    <span className="opacity-50">Select quality</span>
+                  </>
+                )}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent className="min-w-[150px]">
+                  {modelConfig.quality?.map((value) => (
+                    <DropdownMenuItem
+                      key={value}
+                      onSelect={() => onChange({ quality: value })}
+                      className={`flex items-center gap-2.5 ${is(config.quality, value) ? "bg-accent" : ""}`}
+                    >
+                      <QualityBars tier={value} />
+                      <span
+                        className={`text-sm ${is(config.quality, value) ? "font-semibold" : ""}`}
+                      >
+                        {value}
+                      </span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+        </>
+      )}
 
       <DropdownMenuGroup>
         <DropdownMenuLabel className="flex items-center gap-1.5">
@@ -393,7 +405,7 @@ export default function ImageConfig({ config, onChange }: ImageConfigProps) {
             )}
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
-            <DropdownMenuSubContent className="min-w-[200px]">
+            <DropdownMenuSubContent className="min-w-[150px]">
               {OUTPUT_FORMATS.map(({ value, label }) => (
                 <DropdownMenuItem
                   key={value}
