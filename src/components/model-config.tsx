@@ -172,19 +172,26 @@ function DimIcon({ w, h }: { w: number; h: number }) {
   return <SmartphoneIcon size={13} strokeWidth={1.5} className="opacity-60" />;
 }
 
-const ASPECT_RATIO_OPTIONS: { value: AspectRatio; label: string }[] = [
+export const ASPECT_RATIO_OPTIONS: { value: AspectRatio; label: string }[] = [
   { value: "1:1", label: "Square" },
-  { value: "4:3", label: "Classic" },
-  { value: "3:4", label: "Portrait" },
+  { value: "4:3", label: "Classic Landscape" },
+  { value: "3:4", label: "Classic Portrait" },
   { value: "16:9", label: "Widescreen" },
-  { value: "9:16", label: "Vertical" },
-  { value: "3:2", label: "Photo" },
-  { value: "2:3", label: "Portrait Photo" },
-  { value: "4:5", label: "Instagram" },
-  { value: "5:4", label: "Large Format" },
+  { value: "9:16", label: "Vertical Widescreen" },
+  { value: "3:2", label: "Photo Landscape" },
+  { value: "2:3", label: "Photo Portrait" },
+  { value: "4:5", label: "Instagram Portrait" },
+  { value: "5:4", label: "Large Format Landscape" },
   { value: "9:21", label: "Tall Banner" },
   { value: "21:9", label: "Ultrawide" },
+  { value: "2:1", label: "Panorama" },
+  { value: "1:2", label: "Tall Portrait" },
+  { value: "19.5:9", label: "Mobile Wide (19.5:9)" },
+  { value: "9:19.5", label: "Mobile Vertical (19.5:9)" },
+  { value: "20:9", label: "Mobile Wide (20:9)" },
+  { value: "9:20", label: "Mobile Vertical (20:9)" },
 ];
+
 
 const OUTPUT_FORMATS: {
   value: ImageOutputFormat;
@@ -215,14 +222,22 @@ export default function ImageConfig({
   config,
   onChange,
 }: ImageConfigProps) {
-  const activeRatio = ASPECT_RATIO_OPTIONS.find(
+  
+  const filteredAspectRatios = ASPECT_RATIO_OPTIONS.filter((option) =>
+    modelConfig.supportedAspectRatios?.includes(option.value),
+  );
+
+  const activeRatio = filteredAspectRatios.find(
     (r) => r.value === config.aspectRatio,
   );
+
   const activeQuality = modelConfig.quality?.find((q) => q === config.quality);
   const activeFormat = OUTPUT_FORMATS.find(
     (f) => f.value === config.outputFormat,
   );
-  const activeSize = modelConfig.supportedSizes?.find((sz) => sz === config.size);
+  const activeSize = modelConfig.supportedSizes?.find(
+    (sz) => sz === config.size,
+  );
   const batchN = config.n ?? 1;
 
   const getSize = useCallback((size: string) => {
@@ -261,24 +276,18 @@ export default function ImageConfig({
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent className="min-w-[210px]">
-                {ASPECT_RATIO_OPTIONS.map(({ value, label }) => (
+                {filteredAspectRatios.map(({ value, label }) => (
                   <DropdownMenuItem
                     key={value}
                     onSelect={() => onChange({ aspectRatio: value })}
                     className={`flex items-center gap-2.5 ${is(config.aspectRatio, value) ? "bg-accent" : ""}`}
                   >
-                    {/* Visual ratio rectangle */}
-                    {/* <RatioBox ratio={value} /> */}
-
-                    {/* Orientation micro-icon */}
                     {ratioIcon(value)}
-                    {/* Ratio string */}
                     <span
                       className={`font-mono text-xs ${is(config.aspectRatio, value) ? "font-semibold" : ""}`}
                     >
                       {value}
                     </span>
-                    {/* Human label */}
                     <span className="text-xs opacity-50 truncate">{label}</span>
                   </DropdownMenuItem>
                 ))}

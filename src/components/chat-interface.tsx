@@ -25,11 +25,8 @@ export default function ChatInterface() {
   const modelRef = useRef(null);
   const attachRef = useRef(null);
   const fileInputRef = useRef(null);
-  console.log("selectedModel", selectedModel);
 
   const modelMetaData = getModelMeta(selectedModel);
-
-  console.log("modelMetaData", modelMetaData);
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -59,7 +56,7 @@ export default function ChatInterface() {
   return (
     <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center justify-end px-4">
       <div className="w-full max-w-3xl space-y-5  bg-white/10 dark:bg-white/5 backdrop-blur-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.37)]">
-        <div className="bg-[#1a1a1a] rounded-none px-4 pt-4 pb-3 ring-1 ring-white/5 shadow-2xl transition-all duration-200 focus-within:ring-white/10">
+        <div className="bg-[#1a1a1a] px-4 pt-4 pb-3 ring-1 ring-white/5 shadow-2xl transition-all duration-200 focus-within:ring-white/10">
           <textarea
             ref={textareaRef}
             value={value}
