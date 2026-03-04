@@ -1,37 +1,40 @@
 "use client";
 
-import { Folder, ImagePlay, Settings2 } from "lucide-react";
+import { IconCompass } from "@tabler/icons-react";
+import { Folder, Settings2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import type * as React from "react";
 import { useMemo } from "react";
 import { NavMain } from "@/components/sidebar/nav-main";
-import { LoginButton, NavUser } from "@/components/sidebar/nav-user";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { useSession } from "@/lib/auth-client";
+import { NavSecondary } from "./nav-secondary";
+import { VersionSwitcher } from "./version-switcher";
 
+const data = {
+  versions: ["Image generate", "Edit Images"],
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session, isPending } = useSession();
   const pathname = usePathname();
 
   const authNav = useMemo(
     () => [
       {
-        title: "Playground",
+        title: "Explore",
         url: "/",
-        icon: ImagePlay,
+        icon: IconCompass,
         isActive: pathname === "/",
       },
       {
-        title: "Media",
-        url: "/media",
+        title: "library",
+        url: "/library",
         icon: Folder,
-        isActive: pathname.startsWith("/media"),
+        isActive: pathname.startsWith("/library"),
       },
       {
         title: "Settings",
@@ -45,23 +48,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader></SidebarHeader>
+      <SidebarHeader>
+        <VersionSwitcher
+          versions={data.versions}
+          defaultVersion={data.versions[0]}
+        />
+      </SidebarHeader>
 
       <SidebarContent>
-        {!isPending && session?.user && <NavMain items={authNav} />}
-        {/* <NavProjects projects={data.projects} /> */}
+        <NavMain />
+        <NavSecondary items={authNav} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
-        {!isPending && session?.user ? (
-          <NavUser
-            name={session.user.name}
-            email={session.user.email}
-            avatar={session.user.image ?? ""}
-          />
-        ) : (
-          <LoginButton />
-        )}
-      </SidebarFooter>
+      <SidebarFooter></SidebarFooter>
     </Sidebar>
   );
 }

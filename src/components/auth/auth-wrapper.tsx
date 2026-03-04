@@ -49,7 +49,7 @@ export default function AuthWrapper() {
       <CardContent>
         <div className="flex flex-col gap-3">
           <Button
-            variant="outline"
+            variant="default"
             className="w-full rounded-xl gap-2"
             disabled={loading}
             onClick={() => handleSocialLogin("google")}
@@ -59,7 +59,7 @@ export default function AuthWrapper() {
           </Button>
 
           <Button
-            variant="outline"
+            variant="default"
             className="w-full rounded-xl gap-2"
             disabled={loading}
             onClick={() => handleSocialLogin("github")}
@@ -69,7 +69,7 @@ export default function AuthWrapper() {
           </Button>
 
           <Button
-            variant="outline"
+            variant="default"
             className="w-full rounded-xl gap-2"
             disabled={loading}
             onClick={() => handleSocialLogin("twitter")}

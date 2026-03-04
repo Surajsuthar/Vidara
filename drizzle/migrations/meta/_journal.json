@@ -8,6 +8,13 @@
       "when": 1771253717595,
       "tag": "0000_right_red_skull",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772617727573,
+      "tag": "0001_wooden_glorian",
+      "breakpoints": true
     }
   ]
 }

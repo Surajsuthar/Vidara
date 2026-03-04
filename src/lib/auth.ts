@@ -44,5 +44,5 @@ export const auth = betterAuth({
     },
   }),
   plugins: [lastLoginMethod(), nextCookies()],
-  trustedOrigins: ["https://localhost:3000"],
+  trustedOrigins: ["http://localhost:3000"],
 });

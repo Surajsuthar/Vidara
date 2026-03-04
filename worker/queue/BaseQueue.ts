@@ -19,9 +19,7 @@ export abstract class BaseQueue<TJobData> {
       ...options,
     });
 
-    this.queue.on("error", (err) =>
-      console.error(`[Queue:${queueName}] Error:`, err),
-    );
+    this.queue.on("error", (err) => console.error(`[Queue:${queueName}] Error:`, err));
   }
 
   async add(jobName: string, data: TJobData, options?: JobsOptions) {
@@ -33,13 +31,7 @@ export abstract class BaseQueue<TJobData> {
   }
 
   async getJobCounts() {
-    return this.queue.getJobCounts(
-      "waiting",
-      "active",
-      "completed",
-      "failed",
-      "delayed",
-    );
+    return this.queue.getJobCounts("waiting", "active", "completed", "failed", "delayed");
   }
 
   async pause() {
