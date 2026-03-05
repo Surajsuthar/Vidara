@@ -21,10 +21,10 @@ export default function ChatInterface() {
   const [showModels, setShowModels] = useState(false);
   const [showAttach, setShowAttach] = useState(false);
   const [showImageConfig, setShowImageConfig] = useState(false);
-  const textareaRef = useRef(null);
-  const modelRef = useRef(null);
-  const attachRef = useRef(null);
-  const fileInputRef = useRef(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const modelRef = useRef<HTMLDivElement>(null);
+  const attachRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const modelMetaData = getModelMeta(selectedModel);
 
@@ -33,13 +33,13 @@ export default function ChatInterface() {
     if (!el) return;
     el.style.height = "auto";
     el.style.height = Math.min(el.scrollHeight, 180) + "px";
-  }, [value]);
+  }, []);
 
   useEffect(() => {
-    function handle(e) {
-      if (modelRef.current && !modelRef.current.contains(e.target))
+    function handle(e: MouseEvent) {
+      if (modelRef.current && !modelRef.current.contains(e.target as Node))
         setShowModels(false);
-      if (attachRef.current && !attachRef.current.contains(e.target))
+      if (attachRef.current && !attachRef.current.contains(e.target as Node))
         setShowAttach(false);
     }
     document.addEventListener("mousedown", handle);
@@ -64,7 +64,7 @@ export default function ChatInterface() {
             // onKeyDown={handleKeyDown}
             placeholder="Enter Prompt"
             rows={1}
-            className="w-full bg-transparent resize-none outline-none text-[#c8c5be] placeholder-[#3d3d3d] text-[15px] leading-relaxed font-light min-h-[65px] max-h-[180px] overflow-y-auto"
+            className="w-full bg-transparent resize-none outline-none text-[#c8c5be] placeholder-[#3d3d3d] text-[15px] leading-relaxed font-light min-h-16.25 max-h-45 overflow-y-auto"
             style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
           />
 
@@ -89,7 +89,7 @@ export default function ChatInterface() {
                 </button>
 
                 {showModels && (
-                  <div className="absolute bottom-8 right-0 bg-[#1e1e1e] border border-white/10 rounded-xl p-2 shadow-2xl min-w-[260px] max-w-[320px] max-h-[400px] overflow-hidden flex flex-col z-50">
+                  <div className="absolute bottom-8 right-0 bg-[#1e1e1e] border border-white/10 rounded-xl p-2 shadow-2xl min-w-65 max-w-[320px] max-h-100 overflow-hidden flex flex-col z-50">
                     <Modeltab
                       selectedModel={selectedModel}
                       onSelectModel={(model) => {
@@ -116,7 +116,7 @@ export default function ChatInterface() {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="min-w-[130px] bg-[#222] border-white/10"
+                  className="min-w-32.5 bg-[#222] border-white/10"
                   align="start"
                   side="top"
                   sideOffset={8}

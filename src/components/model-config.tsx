@@ -10,7 +10,13 @@ import {
   TvIcon,
 } from "lucide-react";
 import { useCallback } from "react";
-import type { AspectRatio, ImageGenOptions, ImageOutputFormat, ModelMeta, QualityTier } from "@/ai/types";
+import type {
+  AspectRatio,
+  ImageGenOptions,
+  ImageOutputFormat,
+  ModelMeta,
+  QualityTier,
+} from "@/ai/types";
 import {
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -26,7 +32,13 @@ import {
  * Renders a tiny rectangle that visually represents the aspect ratio,
  * constrained inside a fixed 20×20 bounding box.
  */
-function RatioBox({ ratio, className = "" }: { ratio: string; className?: string }) {
+function RatioBox({
+  ratio,
+  className = "",
+}: {
+  ratio: string;
+  className?: string;
+}) {
   const [wStr, hStr] = ratio.split(":");
   const w = Number(wStr);
   const h = Number(hStr);
@@ -38,7 +50,13 @@ function RatioBox({ ratio, className = "" }: { ratio: string; className?: string
   const rh = Math.round(h * scale);
 
   return (
-    <svg width={BOX} height={BOX} viewBox={`0 0 ${BOX} ${BOX}`} className={`shrink-0 ${className}`} aria-hidden="true">
+    <svg
+      width={BOX}
+      height={BOX}
+      viewBox={`0 0 ${BOX} ${BOX}`}
+      className={`shrink-0 ${className}`}
+      aria-hidden="true"
+    >
       {/* Outer bounding hint */}
       <rect
         x={0}
@@ -81,11 +99,11 @@ const QUALITY_BARS: Record<QualityTier, number> = {
 function QualityBars({ tier }: { tier: QualityTier }) {
   const filled = QUALITY_BARS[tier];
   return (
-    <span className="flex items-end gap-[2px] h-[14px] shrink-0" aria-hidden>
+    <span className="flex items-end gap-0.5 h-3.5 shrink-0" aria-hidden>
       {[1, 2, 3, 4].map((i) => (
         <span
           key={i}
-          className={`w-[3px] rounded-sm transition-colors ${
+          className={`w-0.75 rounded-sm transition-colors ${
             i <= filled ? "bg-current opacity-90" : "bg-current opacity-20"
           }`}
           style={{ height: `${5 + i * 2}px` }}
@@ -110,7 +128,10 @@ function BatchGrid({ n }: { n: number }) {
       aria-hidden
     >
       {cells.map((_, i) => (
-        <span key={i} className="w-[6px] h-[6px] rounded-[1px] bg-current opacity-70" />
+        <span
+          key={i}
+          className="w-1.5 h-1.5 rounded-[1px] bg-current opacity-70"
+        />
       ))}
     </span>
   );
@@ -124,7 +145,9 @@ const FORMAT_COLORS: Record<ImageOutputFormat, string> = {
 
 function FormatBadge({ format }: { format: ImageOutputFormat }) {
   return (
-    <span className={`text-[9px] font-bold tracking-wider uppercase px-1 py-px rounded ${FORMAT_COLORS[format]}`}>
+    <span
+      className={`text-[9px] font-bold tracking-wider uppercase px-1 py-px rounded ${FORMAT_COLORS[format]}`}
+    >
       {format}
     </span>
   );
@@ -134,14 +157,18 @@ function ratioIcon(ratio: string) {
   const [wStr, hStr] = ratio.split(":");
   const w = Number(wStr);
   const h = Number(hStr);
-  if (w === h) return <SquareIcon size={11} strokeWidth={2} className="opacity-50" />;
-  if (w > h) return <MonitorIcon size={11} strokeWidth={2} className="opacity-50" />;
+  if (w === h)
+    return <SquareIcon size={11} strokeWidth={2} className="opacity-50" />;
+  if (w > h)
+    return <MonitorIcon size={11} strokeWidth={2} className="opacity-50" />;
   return <SmartphoneIcon size={11} strokeWidth={2} className="opacity-50" />;
 }
 
 function DimIcon({ w, h }: { w: number; h: number }) {
-  if (w === h) return <SquareIcon size={13} strokeWidth={1.5} className="opacity-60" />;
-  if (w > h) return <TvIcon size={13} strokeWidth={1.5} className="opacity-60" />;
+  if (w === h)
+    return <SquareIcon size={13} strokeWidth={1.5} className="opacity-60" />;
+  if (w > h)
+    return <TvIcon size={13} strokeWidth={1.5} className="opacity-60" />;
   return <SmartphoneIcon size={13} strokeWidth={1.5} className="opacity-60" />;
 }
 
@@ -176,7 +203,10 @@ const OUTPUT_FORMATS: {
 
 const BATCH_SIZES = [1, 2, 4];
 
-type ImageConfigState = Pick<ImageGenOptions, "aspectRatio" | "size" | "quality" | "outputFormat" | "seed" | "n">;
+type ImageConfigState = Pick<
+  ImageGenOptions,
+  "aspectRatio" | "size" | "quality" | "outputFormat" | "seed" | "n"
+>;
 
 interface ImageConfigProps {
   modelConfig: ModelMeta;
@@ -186,16 +216,26 @@ interface ImageConfigProps {
 
 const is = (val: unknown, target: unknown) => val === target;
 
-export default function ImageConfig({ modelConfig, config, onChange }: ImageConfigProps) {
+export default function ImageConfig({
+  modelConfig,
+  config,
+  onChange,
+}: ImageConfigProps) {
   const filteredAspectRatios = ASPECT_RATIO_OPTIONS.filter((option) =>
     modelConfig.supportedAspectRatios?.includes(option.value),
   );
 
-  const activeRatio = filteredAspectRatios.find((r) => r.value === config.aspectRatio);
+  const activeRatio = filteredAspectRatios.find(
+    (r) => r.value === config.aspectRatio,
+  );
 
   const activeQuality = modelConfig.quality?.find((q) => q === config.quality);
-  const activeFormat = OUTPUT_FORMATS.find((f) => f.value === config.outputFormat);
-  const activeSize = modelConfig.supportedSizes?.find((sz) => sz === config.size);
+  const activeFormat = OUTPUT_FORMATS.find(
+    (f) => f.value === config.outputFormat,
+  );
+  const activeSize = modelConfig.supportedSizes?.find(
+    (sz) => sz === config.size,
+  );
   const batchN = config.n ?? 1;
 
   const getSize = useCallback((size: string) => {
@@ -221,7 +261,9 @@ export default function ImageConfig({ modelConfig, config, onChange }: ImageConf
                 <>
                   <RatioBox ratio={activeRatio.value} />
                   <span>{activeRatio.value}</span>
-                  <span className="text-xs opacity-50">· {activeRatio.label}</span>
+                  <span className="text-xs opacity-50">
+                    · {activeRatio.label}
+                  </span>
                 </>
               ) : (
                 <>
@@ -239,7 +281,9 @@ export default function ImageConfig({ modelConfig, config, onChange }: ImageConf
                     className={`flex items-center gap-2.5 ${is(config.aspectRatio, value) ? "bg-accent" : ""}`}
                   >
                     {ratioIcon(value)}
-                    <span className={`font-mono text-xs ${is(config.aspectRatio, value) ? "font-semibold" : ""}`}>
+                    <span
+                      className={`font-mono text-xs ${is(config.aspectRatio, value) ? "font-semibold" : ""}`}
+                    >
                       {value}
                     </span>
                     <span className="text-xs opacity-50 truncate">{label}</span>
@@ -262,7 +306,10 @@ export default function ImageConfig({ modelConfig, config, onChange }: ImageConf
               <DropdownMenuSubTrigger className="flex items-center justify-between gap-2">
                 {activeSize ? (
                   <>
-                    <DimIcon w={activeSizeDimention.width} h={activeSizeDimention.height} />
+                    <DimIcon
+                      w={activeSizeDimention.width}
+                      h={activeSizeDimention.height}
+                    />
                     <span className="font-mono text-xs">
                       {activeSizeDimention.width} × {activeSizeDimention.height}
                     </span>
@@ -287,7 +334,9 @@ export default function ImageConfig({ modelConfig, config, onChange }: ImageConf
                         className={`flex items-center gap-2.5 ${activeSize ? "bg-accent" : ""}`}
                       >
                         <DimIcon w={width} h={height} />
-                        <span className={`font-mono text-xs ${activeSize ? "font-semibold" : ""}`}>
+                        <span
+                          className={`font-mono text-xs ${activeSize ? "font-semibold" : ""}`}
+                        >
                           {width} × {height}
                         </span>
                       </DropdownMenuItem>
@@ -331,7 +380,11 @@ export default function ImageConfig({ modelConfig, config, onChange }: ImageConf
                       className={`flex items-center gap-2.5 ${is(config.quality, value) ? "bg-accent" : ""}`}
                     >
                       <QualityBars tier={value} />
-                      <span className={`text-sm ${is(config.quality, value) ? "font-semibold" : ""}`}>{value}</span>
+                      <span
+                        className={`text-sm ${is(config.quality, value) ? "font-semibold" : ""}`}
+                      >
+                        {value}
+                      </span>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuSubContent>
@@ -367,7 +420,11 @@ export default function ImageConfig({ modelConfig, config, onChange }: ImageConf
                   className={`flex items-center gap-2.5 ${is(config.outputFormat, value) ? "bg-accent" : ""}`}
                 >
                   <FormatBadge format={value} />
-                  <span className={`text-sm ${is(config.outputFormat, value) ? "font-semibold" : ""}`}>{label}</span>
+                  <span
+                    className={`text-sm ${is(config.outputFormat, value) ? "font-semibold" : ""}`}
+                  >
+                    {label}
+                  </span>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuSubContent>
@@ -398,7 +455,9 @@ export default function ImageConfig({ modelConfig, config, onChange }: ImageConf
                   className={`flex items-center gap-2.5 ${is(batchN, n) ? "bg-accent" : ""}`}
                 >
                   <BatchGrid n={n} />
-                  <span className={`text-sm ${is(batchN, n) ? "font-semibold" : ""}`}>
+                  <span
+                    className={`text-sm ${is(batchN, n) ? "font-semibold" : ""}`}
+                  >
                     {n} image{n !== 1 ? "s" : ""}
                   </span>
                 </DropdownMenuItem>
