@@ -49,6 +49,11 @@ export function SiteHeader() {
         {/* Right side */}
         <div className="ml-auto flex items-center gap-2">
           {/* Credits */}
+          <Separator
+            orientation="vertical"
+            className="mx-2 data-[orientation=vertical]:h-4"
+          />
+
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="outline" size="sm">

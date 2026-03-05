@@ -13,7 +13,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { NavSecondary } from "./nav-secondary";
-import { VersionSwitcher } from "./version-switcher";
+import { Studio } from "./version-switcher";
 
 const data = {
   versions: ["Image generate", "Edit Images"],
@@ -48,12 +48,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <VersionSwitcher
-          versions={data.versions}
-          defaultVersion={data.versions[0]}
-        />
-      </SidebarHeader>
+      <SidebarHeader>Vidara</SidebarHeader>
 
       <SidebarContent>
         <NavMain />

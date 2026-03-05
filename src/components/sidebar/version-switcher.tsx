@@ -15,7 +15,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-export function VersionSwitcher({
+export function Studio({
   versions,
   defaultVersion,
 }: {
@@ -31,13 +31,13 @@ export function VersionSwitcher({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground border"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg ">
                 <GalleryVerticalEnd className="size-4" />
               </div>
               <div className="flex flex-col gap-1.5 leading-none">
-                <span className="font-medium">Vidara</span>
+                <span className="font-medium">Studio</span>
                 <span className="">{selectedVersion}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />

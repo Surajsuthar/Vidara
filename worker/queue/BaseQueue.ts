@@ -1,11 +1,11 @@
 import { type JobsOptions, Queue, type QueueOptions } from "bullmq";
 import { RedisConnection } from "./RedisConnection";
 
-export abstract class BaseQueue<TJobData> {
-  protected queue: Queue<TJobData>;
+export abstract class BaseQueue<TJobData, TJobName extends string = string> {
+  protected queue: Queue<TJobData, object, TJobName>;
 
   constructor(queueName: string, options?: Partial<QueueOptions>) {
-    this.queue = new Queue<TJobData>(queueName, {
+    this.queue = new Queue<TJobData, object, TJobName>(queueName, {
       connection: RedisConnection.getInstance(),
       defaultJobOptions: {
         attempts: 3,
@@ -19,19 +19,29 @@ export abstract class BaseQueue<TJobData> {
       ...options,
     });
 
-    this.queue.on("error", (err) => console.error(`[Queue:${queueName}] Error:`, err));
+    this.queue.on("error", (err) =>
+      console.error(`[Queue:${queueName}] Error:`, err),
+    );
   }
 
-  async add(jobName: string, data: TJobData, options?: JobsOptions) {
+  async add(jobName: TJobName, data: TJobData, options?: JobsOptions) {
     return this.queue.add(jobName, data, options);
   }
 
-  async addBulk(jobs: { name: string; data: TJobData; opts?: JobsOptions }[]) {
+  async addBulk(
+    jobs: { name: TJobName; data: TJobData; opts?: JobsOptions }[],
+  ) {
     return this.queue.addBulk(jobs);
   }
 
   async getJobCounts() {
-    return this.queue.getJobCounts("waiting", "active", "completed", "failed", "delayed");
+    return this.queue.getJobCounts(
+      "waiting",
+      "active",
+      "completed",
+      "failed",
+      "delayed",
+    );
   }
 
   async pause() {
