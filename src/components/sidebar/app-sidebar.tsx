@@ -13,7 +13,6 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { NavSecondary } from "./nav-secondary";
-import { Studio } from "./version-switcher";
 
 const data = {
   versions: ["Image generate", "Edit Images"],
