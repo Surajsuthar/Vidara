@@ -13,13 +13,15 @@ import {
 } from "@/components/ui/tooltip";
 import { useGithub } from "@/hooks/use-github-count";
 import { useSession } from "@/lib/auth-client";
+import { getStudioItemByPath } from "@/lib/studio-config";
 import { NavUser } from "./nav-user";
 
 export function SiteHeader() {
   const { stargazers_count } = useGithub();
   const { data: session, isPending } = useSession();
   const pathName = usePathname();
-  const slug = pathName.split("/")[1] || "";
+  const studioItem = getStudioItemByPath(pathName);
+  const pageTitle = studioItem?.label ?? pathName.slice(1);
 
   const user = session?.user
     ? {
@@ -30,13 +32,13 @@ export function SiteHeader() {
     : null;
 
   return (
-    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b border-border/40 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
-      <div className="flex w-full items-center gap-1 px-0.5 lg:gap-2 lg:px-2">
+    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b border-border/40 bg-background/60 backdrop-blur-xl supports-backdrop-filter:bg-background/60 sticky top-0 z-40 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+      <div className="flex w-full items-center gap-1 px-2 lg:gap-2 lg:px-4">
         {/* Sidebar toggle */}
         {/* <SidebarTrigger className="-ml-1" /> */}
-        {slug && (
+        {pageTitle && (
           <>
-            <h1 className="text-base font-medium">{slug}</h1>
+            <h1 className="text-base font-medium">{pageTitle}</h1>
             <Separator
               orientation="vertical"
               className="mx-2 data-[orientation=vertical]:h-4"
