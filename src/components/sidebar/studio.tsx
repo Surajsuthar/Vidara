@@ -1,8 +1,7 @@
 "use client";
 
-import { Check, ChevronsUpDown, GalleryVerticalEnd } from "lucide-react";
+import { Check, ChevronsUpDown, ImageIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,7 +31,11 @@ export function Studio() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground border"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
-                <GalleryVerticalEnd className="size-4" />
+                {selected ? (
+                  <selected.icon className="size-4" />
+                ) : (
+                  <ImageIcon className="size-4" />
+                )}
               </div>
               <div className="flex flex-col gap-1.5 leading-none">
                 <span className="font-medium">Studio</span>

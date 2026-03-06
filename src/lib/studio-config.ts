@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-react";
+import { ImageIcon, Wand2 } from "lucide-react";
 import type { Metadata } from "next";
 
 export type StudioItem = {
@@ -5,6 +7,7 @@ export type StudioItem = {
   href: string;
   description: string;
   slug: string[];
+  icon: LucideIcon;
 };
 
 export const STUDIO_ITEMS = [
@@ -13,19 +16,21 @@ export const STUDIO_ITEMS = [
     href: "/generate/image",
     description: "Generate stunning images from text prompts using AI",
     slug: ["generate", "image"],
+    icon: ImageIcon,
   },
   {
     label: "Edit Images",
     href: "/edit/image",
     description: "Edit and enhance your images with AI-powered tools",
     slug: ["edit", "image"],
+    icon: Wand2,
   },
-  {
-    label: "Video Generate",
-    href: "/generate/video",
-    description: "Create compelling videos from text descriptions with AI",
-    slug: ["generate", "video"],
-  },
+  // {
+  //   label: "Video Generate",
+  //   href: "/generate/video",
+  //   description: "Create compelling videos from text descriptions with AI",
+  //   slug: ["generate", "video"],
+  // },
 ] as const satisfies StudioItem[];
 
 export type StudioHref = (typeof STUDIO_ITEMS)[number]["href"];
@@ -61,18 +66,18 @@ export const STUDIO_PAGE_META: Record<string, PageMeta> = {
       "Vidara",
     ],
   },
-  "generate/video": {
-    title: "AI Video Generator | Vidara Studio",
-    description:
-      "Create compelling, high-quality videos from text descriptions with AI-powered video generation. Produce professional content in seconds with Vidara.",
-    keywords: [
-      "AI video generation",
-      "text to video",
-      "AI video creator",
-      "video AI",
-      "Vidara",
-    ],
-  },
+  // "generate/video": {
+  //   title: "AI Video Generator | Vidara Studio",
+  //   description:
+  //     "Create compelling, high-quality videos from text descriptions with AI-powered video generation. Produce professional content in seconds with Vidara.",
+  //   keywords: [
+  //     "AI video generation",
+  //     "text to video",
+  //     "AI video creator",
+  //     "video AI",
+  //     "Vidara",
+  //   ],
+  // },
 };
 
 export function buildStudioMetadata(slugKey: string): Metadata {
