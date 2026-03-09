@@ -1,4 +1,4 @@
-// src/worker.ts
+import "dotenv/config";
 
 import { RedisConnection } from "./queue/RedisConnection";
 import { WorkerManager } from "./queue/WorkerManager";

@@ -62,6 +62,15 @@ const generateRequestSchema = z.object({
 });
 
 export async function GET(req: Request) {
+  const userAuth = await getMyUser()
+
+  if(!userAuth) {
+    const appError = Errors.unauthorized();
+    return Response.json(appError.toResponse(), {
+      status: appError.httpStatus,
+    });
+  }
+
   const { searchParams } = new URL(req.url);
   const requestId = searchParams.get("requestId");
 

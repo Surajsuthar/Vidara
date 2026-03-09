@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "worker:dev": "tsx worker/index.ts",
     "build": "next build",
     "db:migrate": "bun x drizzle-kit migrate",
     "db:generate": "bun x drizzle-kit generate",
