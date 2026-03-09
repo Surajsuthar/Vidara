@@ -1,3 +1,4 @@
+import { env } from "@/utils/env";
 import Redis, { type RedisOptions } from "ioredis";
 
 export class RedisConnection {
@@ -8,9 +9,9 @@ export class RedisConnection {
   static getInstance(): Redis {
     if (!RedisConnection.instance) {
       const options: RedisOptions = {
-        host: process.env.REDIS_HOST ?? "localhost",
-        port: Number(process.env.REDIS_PORT ?? 6379),
-        password: process.env.REDIS_PASSWORD,
+        host:env.REDIS_HOST ?? "localhost",
+        port: Number(env.REDIS_PORT ?? 6379),
+        password: env.REDIS_PASSWORD,
         maxRetriesPerRequest: null, // Required by BullMQ
         enableReadyCheck: false,
         retryStrategy: (times: number) => {

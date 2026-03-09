@@ -1,11 +1,11 @@
 import { type JobsOptions, Queue, type QueueOptions } from "bullmq";
 import { RedisConnection } from "./RedisConnection";
 
-export abstract class BaseQueue<TJobData, TJobName extends string = string> {
-  protected queue: Queue<TJobData, object, TJobName>;
+export abstract class BaseQueue<TJobData, TResult = unknown, NameType extends string = string> {
+  protected queue: Queue<TJobData, TResult, NameType>;
 
   constructor(queueName: string, options?: Partial<QueueOptions>) {
-    this.queue = new Queue<TJobData, object, TJobName>(queueName, {
+    this.queue = new Queue<TJobData, TResult, NameType>(queueName, {
       connection: RedisConnection.getInstance(),
       defaultJobOptions: {
         attempts: 3,
@@ -24,12 +24,12 @@ export abstract class BaseQueue<TJobData, TJobName extends string = string> {
     );
   }
 
-  async add(jobName: TJobName, data: TJobData, options?: JobsOptions) {
+  async add(jobName: NameType, data: TJobData, options?: JobsOptions) {
     return this.queue.add(jobName, data, options);
   }
 
   async addBulk(
-    jobs: { name: TJobName; data: TJobData; opts?: JobsOptions }[],
+    jobs: { name: NameType; data: TJobData; opts?: JobsOptions }[],
   ) {
     return this.queue.addBulk(jobs);
   }
