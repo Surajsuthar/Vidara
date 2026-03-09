@@ -1,45 +1,70 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Cloud } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Icons } from "@/lib/icons";
 import { MODEL_REGISTRY } from "../../ai/factory";
 import { type ImageModel, ModelProvider } from "../../ai/types";
 
-const PROVIDER_LABELS: Partial<Record<ModelProvider, string>> = {
-  [ModelProvider.OPENAI]: "OpenAI",
-  [ModelProvider.XAI]: "xAI",
-  [ModelProvider.DEEPINFRE]: "DeepInfra",
-};
-
-const PROVIDER_TABS: {
+type ProviderTab = {
   value: ModelProvider;
   icon: typeof Icons.GoogleLogo | typeof Cloud;
-}[] = [
-  { value: ModelProvider.GOOGLE, icon: Icons.GoogleLogo },
-  { value: ModelProvider.OPENAI, icon: Icons.Openai },
-  { value: ModelProvider.XAI, icon: Icons.xAi },
-  { value: ModelProvider.FAL, icon: Icons.Falai },
-  { value: ModelProvider.REPLICATE, icon: Icons.ReplicateAi },
-  { value: ModelProvider.DEEPINFRE, icon: Icons.DeepInfra },
-  { value: ModelProvider.AMAZON, icon: Cloud },
-];
-
-const PROVIDER_MAP: Partial<Record<ModelProvider, string[]>> = {
-  [ModelProvider.GOOGLE]: ["google", "vertex"],
-  [ModelProvider.OPENAI]: ["openai"],
-  [ModelProvider.XAI]: ["xai"],
-  [ModelProvider.FAL]: ["fal"],
-  [ModelProvider.REPLICATE]: ["replicate"],
-  [ModelProvider.DEEPINFRE]: ["deepinfra"],
-  [ModelProvider.AMAZON]: ["bedrock"],
+  providerIds: string[];
 };
 
-function getModelsByProvider(
-  provider: ModelProvider,
-): { id: ImageModel; label: string }[] {
-  const providerIds = PROVIDER_MAP[provider] ?? [];
+const PROVIDER_LABELS: Partial<Record<ModelProvider, string>> = {
+  [ModelProvider.GOOGLE]: "Google",
+  [ModelProvider.OPENAI]: "OpenAI",
+  [ModelProvider.XAI]: "xAI",
+  [ModelProvider.FAL]: "Fal",
+  [ModelProvider.REPLICATE]: "Replicate",
+  [ModelProvider.DEEPINFRE]: "DeepInfra",
+  [ModelProvider.AMAZON]: "Amazon Bedrock",
+};
+
+const PROVIDER_TABS: ProviderTab[] = [
+  {
+    value: ModelProvider.GOOGLE,
+    icon: Icons.GoogleLogo,
+    providerIds: ["google", "vertex"],
+  },
+  {
+    value: ModelProvider.OPENAI,
+    icon: Icons.Openai,
+    providerIds: ["openai"],
+  },
+  {
+    value: ModelProvider.XAI,
+    icon: Icons.xAi,
+    providerIds: ["xai"],
+  },
+  {
+    value: ModelProvider.FAL,
+    icon: Icons.Falai,
+    providerIds: ["fal"],
+  },
+  {
+    value: ModelProvider.REPLICATE,
+    icon: Icons.ReplicateAi,
+    providerIds: ["replicate"],
+  },
+  {
+    value: ModelProvider.DEEPINFRE,
+    icon: Icons.DeepInfra,
+    providerIds: ["deepinfra"],
+  },
+  {
+    value: ModelProvider.AMAZON,
+    icon: Cloud,
+    providerIds: ["bedrock"],
+  },
+];
+
+function getModelsByProvider(provider: ModelProvider) {
+  const providerTab = PROVIDER_TABS.find((tab) => tab.value === provider);
+  const providerIds = providerTab?.providerIds ?? [];
+
   return (
     Object.entries(MODEL_REGISTRY) as [
       ImageModel,
@@ -47,7 +72,21 @@ function getModelsByProvider(
     ][]
   )
     .filter(([, meta]) => providerIds.includes(meta.provider))
-    .map(([id, meta]) => ({ id, label: meta.displayName }));
+    .map(([id, meta]) => ({ id, label: meta.displayName }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+}
+
+function getProviderForModel(model?: ImageModel): ModelProvider {
+  if (!model) return PROVIDER_TABS[0]?.value ?? ModelProvider.GOOGLE;
+
+  const meta = MODEL_REGISTRY[model];
+  if (!meta) return PROVIDER_TABS[0]?.value ?? ModelProvider.GOOGLE;
+
+  return (
+    PROVIDER_TABS.find((tab) => tab.providerIds.includes(meta.provider))?.value ??
+    PROVIDER_TABS[0]?.value ??
+    ModelProvider.GOOGLE
+  );
 }
 
 interface ModeltabProps {
@@ -56,10 +95,19 @@ interface ModeltabProps {
 }
 
 export function Modeltab({ selectedModel, onSelectModel }: ModeltabProps) {
-  const defaultTab = PROVIDER_TABS[0]?.value ?? ModelProvider.GOOGLE;
+  const derivedProvider = useMemo(
+    () => getProviderForModel(selectedModel),
+    [selectedModel],
+  );
+  const [activeProvider, setActiveProvider] =
+    useState<ModelProvider>(derivedProvider);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+
+  useEffect(() => {
+    setActiveProvider(derivedProvider);
+  }, [derivedProvider]);
 
   const checkScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -88,7 +136,7 @@ export function Modeltab({ selectedModel, onSelectModel }: ModeltabProps) {
   };
 
   return (
-    <Tabs defaultValue={defaultTab} className="w-full">
+    <Tabs value={activeProvider} onValueChange={(value) => setActiveProvider(value as ModelProvider)} className="w-full">
       {/* Scroll wrapper */}
       <div className="relative flex items-center rounded-lg bg-[#2a2a2a]">
         {/* Left arrow */}

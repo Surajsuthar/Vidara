@@ -192,7 +192,7 @@ export const ASPECT_RATIO_OPTIONS: { value: AspectRatio; label: string }[] = [
   { value: "9:20", label: "Mobile Vertical (20:9)" },
 ];
 
-const OUTPUT_FORMATS: {
+export const OUTPUT_FORMATS: {
   value: ImageOutputFormat;
   label: string;
 }[] = [
@@ -201,9 +201,9 @@ const OUTPUT_FORMATS: {
   { value: "jpeg", label: "JPEG" },
 ];
 
-const BATCH_SIZES = [1, 2, 4];
+export const BATCH_SIZES = [1, 2, 4] as const;
 
-type ImageConfigState = Pick<
+export type ImageConfigState = Pick<
   ImageGenOptions,
   "aspectRatio" | "size" | "quality" | "outputFormat" | "seed" | "n"
 >;
@@ -215,6 +215,92 @@ interface ImageConfigProps {
 }
 
 const is = (val: unknown, target: unknown) => val === target;
+
+export function getDefaultImageConfig(
+  modelConfig: ModelMeta,
+): ImageConfigState {
+  const aspectRatio = modelConfig.supportsAspectRatio
+    ? (modelConfig.defaultAspectRatio ??
+      modelConfig.supportedAspectRatios?.[0] ??
+      "1:1")
+    : undefined;
+
+  const size = modelConfig.supportsSize
+    ? (modelConfig.defualtSize ?? modelConfig.supportedSizes?.[0])
+    : undefined;
+
+  const quality = modelConfig.supportsQuality
+    ? (modelConfig.quality?.includes("standard")
+        ? "standard"
+        : modelConfig.quality?.[0])
+    : undefined;
+
+  return {
+    aspectRatio,
+    size,
+    quality,
+    outputFormat: "png",
+    seed: modelConfig.supportsSeed ? 1234567890 : undefined,
+    n: 1,
+  };
+}
+
+export function normalizeImageConfigForModel(
+  modelConfig: ModelMeta,
+  config: ImageConfigState,
+): ImageConfigState {
+  const nextConfig: ImageConfigState = {
+    ...config,
+    aspectRatio: modelConfig.supportsAspectRatio ? config.aspectRatio : undefined,
+    size: modelConfig.supportsSize ? config.size : undefined,
+    quality: modelConfig.supportsQuality ? config.quality : undefined,
+    seed: modelConfig.supportsSeed ? config.seed : undefined,
+    n: config.n ?? 1,
+    outputFormat: config.outputFormat ?? "png",
+  };
+
+  if (modelConfig.supportsAspectRatio) {
+    const supportedAspectRatios = modelConfig.supportedAspectRatios ?? [];
+    if (
+      !nextConfig.aspectRatio ||
+      !supportedAspectRatios.includes(nextConfig.aspectRatio)
+    ) {
+      nextConfig.aspectRatio =
+        modelConfig.defaultAspectRatio ?? supportedAspectRatios[0] ?? "1:1";
+    }
+  }
+
+  if (modelConfig.supportsSize) {
+    const supportedSizes = modelConfig.supportedSizes ?? [];
+    if (!nextConfig.size || !supportedSizes.includes(nextConfig.size)) {
+      nextConfig.size = modelConfig.defualtSize ?? supportedSizes[0];
+    }
+  }
+
+  if (modelConfig.supportsQuality) {
+    const supportedQuality = modelConfig.quality ?? [];
+    if (!nextConfig.quality || !supportedQuality.includes(nextConfig.quality)) {
+      nextConfig.quality = supportedQuality.includes("standard")
+        ? "standard"
+        : supportedQuality[0];
+    }
+  }
+
+  if (!modelConfig.supportsSeed) {
+    nextConfig.seed = undefined;
+  }
+
+  const maxBatchSize = Math.max(1, modelConfig.maxBatchSize);
+  if ((nextConfig.n ?? 1) > maxBatchSize) {
+    nextConfig.n = maxBatchSize;
+  }
+
+  if (!BATCH_SIZES.includes((nextConfig.n ?? 1) as (typeof BATCH_SIZES)[number])) {
+    nextConfig.n = BATCH_SIZES.find((value) => value <= maxBatchSize) ?? 1;
+  }
+
+  return nextConfig;
+}
 
 export default function ImageConfig({
   modelConfig,
@@ -245,8 +331,6 @@ export default function ImageConfig({
 
   const activeSizeDimention = getSize(activeSize ?? "");
 
-  console.log("modelConfig.supportedSizes", modelConfig.supportedSizes);
-
   return (
     <>
       {modelConfig.supportedAspectRatios && (
@@ -273,7 +357,7 @@ export default function ImageConfig({
               )}
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent className="min-w-[210px]">
+              <DropdownMenuSubContent className="min-w-52.5">
                 {filteredAspectRatios.map(({ value, label }) => (
                   <DropdownMenuItem
                     key={value}
@@ -328,14 +412,12 @@ export default function ImageConfig({
                     return (
                       <DropdownMenuItem
                         key={size}
-                        // onSelect={() => {
-                        //   onChange({ width: width, height: height });
-                        // }}
-                        className={`flex items-center gap-2.5 ${activeSize ? "bg-accent" : ""}`}
+                        onSelect={() => onChange({ size })}
+                        className={`flex items-center gap-2.5 ${is(config.size, size) ? "bg-accent" : ""}`}
                       >
                         <DimIcon w={width} h={height} />
                         <span
-                          className={`font-mono text-xs ${activeSize ? "font-semibold" : ""}`}
+                          className={`font-mono text-xs ${is(config.size, size) ? "font-semibold" : ""}`}
                         >
                           {width} × {height}
                         </span>
@@ -448,7 +530,7 @@ export default function ImageConfig({
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
-              {BATCH_SIZES.map((n) => (
+              {BATCH_SIZES.filter((n) => n <= modelConfig.maxBatchSize).map((n) => (
                 <DropdownMenuItem
                   key={n}
                   onSelect={() => onChange({ n })}

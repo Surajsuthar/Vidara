@@ -27,5 +27,7 @@ export default async function StudioPage({ params }: Props) {
     notFound();
   }
 
+  console.log("slug", slug.join("/"))
+
   return <ChatInterface />;
 }

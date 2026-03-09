@@ -62,7 +62,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-white/90">
-                      Aisha Patel
+                      Suraj Suthar
                     </p>
                     <p className="text-[11px] text-white/45">
                       Head of Product · Nexlayer
@@ -87,6 +87,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </Link>
                   ))}
                 </nav>
+              </div>
+              <div className="p-2">
+                <p>build by</p>
+                <Link href="https://x.com/Suraj__0067" className="text-sm">@Suraj__0067</Link>
               </div>
             </div>
           </div>

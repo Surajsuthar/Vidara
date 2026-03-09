@@ -1,3 +1,5 @@
+import z from "zod";
+
 export type processType = "generate" | "edit";
 
 export type resourceType = "text-to-image" | "image-to-image";

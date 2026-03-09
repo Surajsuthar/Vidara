@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type * as React from "react";
+import { Toaster } from "../ui/sonner";
 import { ThemeProvider } from "../providers/theme-provider";
 
 const queryClient = new QueryClient({
@@ -33,6 +34,7 @@ export function RootProvider({ children }: RootProviderProps) {
         disableTransitionOnChange
       >
         {children}
+        <Toaster position="top-center" richColors />
       </ThemeProvider>
     </QueryClientProvider>
   );

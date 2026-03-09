@@ -1,5 +1,6 @@
 // src/lib/queue/WorkerManager.ts
 import { EmailWorker } from "@/jobs/email/EmailWorker";
+import { GenerationWorker } from "@/jobs/generation/GenerationWorker";
 // import { ReportWorker } from "@/jobs/report/ReportWorker";
 
 export class WorkerManager {
@@ -9,6 +10,7 @@ export class WorkerManager {
     console.log("[WorkerManager] Starting all workers...");
 
     this.workers.push(EmailWorker.getInstance());
+    this.workers.push(GenerationWorker.getInstance());
 
     console.log(`[WorkerManager] ${this.workers.length} workers running`);
   }
