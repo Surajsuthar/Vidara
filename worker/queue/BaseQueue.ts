@@ -31,6 +31,7 @@ export abstract class BaseQueue<TJobData, TResult = unknown, NameType extends st
   async addBulk(
     jobs: { name: NameType; data: TJobData; opts?: JobsOptions }[],
   ) {
+    //
     return this.queue.addBulk(jobs);
   }
 

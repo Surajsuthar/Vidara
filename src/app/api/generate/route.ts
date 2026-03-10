@@ -176,6 +176,7 @@ export async function POST(req: Request) {
       },
     );
   } catch (error) {
+    console.log("error",error)
     const appError =
       error instanceof z.ZodError
         ? Errors.validation("Invalid request payload.", {

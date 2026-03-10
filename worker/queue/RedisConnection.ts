@@ -12,6 +12,7 @@ export class RedisConnection {
         host:env.REDIS_HOST ?? "localhost",
         port: Number(env.REDIS_PORT ?? 6379),
         password: env.REDIS_PASSWORD,
+        tls: {},
         maxRetriesPerRequest: null, // Required by BullMQ
         enableReadyCheck: false,
         retryStrategy: (times: number) => {

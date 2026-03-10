@@ -220,13 +220,8 @@ export default function ChatInterface() {
         setGenerationResult(data.result);
       }
     },
-    (error) => {
-      toast.error("Generation failed", {
-        description:
-          error instanceof Error
-            ? error.message
-            : "Image generation request failed.",
-      });
+    () => {
+      setActiveRequestId(null);
     },
   );
 
@@ -238,6 +233,7 @@ export default function ChatInterface() {
           "Unable to fetch the latest generation status.",
         ),
       });
+      setHasShownReadyToast(true);
       setActiveRequestId(null);
       return;
     }
