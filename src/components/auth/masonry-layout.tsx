@@ -1,109 +1,221 @@
 "use client";
 
 import Image from "next/image";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import type { MasonryImageItem } from "@/lib/masonry-backgrounds";
 
-interface ImageItem {
-  id: number;
-  src: string;
-  alt: string;
+interface MasonryLayoutProps {
+  images?: MasonryImageItem[];
+  columnCount?: number;
+  mobileColumnCount?: number;
+  gap?: number;
+  speed?: number;
+  className?: string;
+  columnClassName?: string;
+  imageClassName?: string;
+  priorityCount?: number;
+  overlay?: React.ReactNode;
+  imageSizes?: string;
+  fadeEdges?: boolean;
+  pauseOnHover?: boolean;
 }
 
+const DEFAULT_COLUMN_COUNT = 4;
+const DEFAULT_MOBILE_COLUMN_COUNT = 2;
+const DEFAULT_GAP = 1;
+const DEFAULT_SPEED = 28;
+const DEFAULT_PRIORITY_COUNT = 8;
 
-export default function MasonryInfiniteGallery() {
-  const [images, setImages] = useState<ImageItem[]>([]);
-  const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+function splitIntoColumns<T>(items: T[], columnCount: number) {
+  const normalizedCount = Math.max(1, columnCount);
+  const columns = Array.from({ length: normalizedCount }, () => [] as T[]);
 
-  const loaderRef = useRef<HTMLDivElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  items.forEach((item, index) => {
+    columns[index % normalizedCount].push(item);
+  });
 
-  // Simulate fetching images (replace with real API call)
-  const fetchImages = useCallback(
-    async (currentPage: number) => {
-      if (isLoading || !hasMore) return;
+  return columns;
+}
 
-      setIsLoading(true);
-      await new Promise((resolve) =>
-        setTimeout(resolve, 900 + Math.random() * 600),
-      );
+function getEstimatedHeight(
+  image: MasonryImageItem,
+  imageIndex: number,
+  columnIndex: number,
+) {
+  if (image.width && image.height) {
+    return Math.round((image.height / image.width) * 320);
+  }
 
-      const perPage = 32;
-      const newImages: ImageItem[] = Array.from({ length: perPage }, (_, i) => {
-        const index = (currentPage - 1) * perPage + i + 1;
-        // Using picsum for random images with varied aspect ratios
-        const heightVariation = 400 + (index % 7) * 80; // 400–880px height simulation
-        return {
-          id: index,
-          src: `https://picsum.photos/seed/img${index}/600/${heightVariation}`,
-          alt: `Random artwork ${index}`,
-        };
-      });
+  return 420 + ((imageIndex + columnIndex) % 5) * 80;
+}
 
-      if (newImages.length < perPage) {
-        setHasMore(false);
-      }
-
-      setImages((prev) => [...prev, ...newImages]);
-      setPage(currentPage + 1);
-      setIsLoading(false);
-    },
-    [isLoading, hasMore],
+export default function MasonryLayout({
+  images = [],
+  columnCount = DEFAULT_COLUMN_COUNT,
+  mobileColumnCount = DEFAULT_MOBILE_COLUMN_COUNT,
+  gap = DEFAULT_GAP,
+  speed = DEFAULT_SPEED,
+  className,
+  columnClassName,
+  imageClassName,
+  priorityCount = DEFAULT_PRIORITY_COUNT,
+  overlay,
+  imageSizes = "(max-width: 768px) 50vw, 25vw",
+  fadeEdges = true,
+  pauseOnHover = false,
+}: MasonryLayoutProps) {
+  const [mounted, setMounted] = useState(false);
+  const animationIdRef = useRef(
+    `masonry-scroll-${Math.random().toString(36).slice(2, 10)}`,
   );
 
-  // Intersection Observer for infinite scroll
   useEffect(() => {
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading) {
-          fetchImages(page);
+    setMounted(true);
+  }, []);
+
+  const desktopColumns = useMemo(
+    () => splitIntoColumns(images, Math.max(1, columnCount)),
+    [images, columnCount],
+  );
+
+  const mobileColumns = useMemo(
+    () => splitIntoColumns(images, Math.max(1, mobileColumnCount)),
+    [images, mobileColumnCount],
+  );
+
+  const renderColumns = (
+    columns: MasonryImageItem[][],
+    sizes: string,
+    variant: "mobile" | "desktop",
+  ) =>
+    columns.map((column, columnIndex) => {
+      const duplicatedColumn = [...column, ...column];
+      const columnDuration =
+        speed + (columnIndex % 2 === 0 ? columnIndex * 2 : columnIndex * 3);
+
+      return (
+        <div
+          key={`${variant}-column-${columnIndex}`}
+          className={cn("relative overflow-hidden", columnClassName)}
+        >
+          <div
+            className={cn("masonry-track flex flex-col", {
+              "group-hover:[animation-play-state:paused]": pauseOnHover,
+            })}
+            style={{
+              gap: "var(--masonry-gap)",
+              animation: mounted
+                ? `${animationIdRef.current} ${columnDuration}s linear infinite`
+                : "none",
+              willChange: "transform",
+            }}
+          >
+            {duplicatedColumn.map((image, imageIndex) => {
+              const shouldPrioritize = imageIndex < priorityCount;
+              const estimatedHeight = getEstimatedHeight(
+                image,
+                imageIndex,
+                columnIndex,
+              );
+
+              return (
+                <div
+                  key={`${variant}-${image.id}-${imageIndex}`}
+                  className="relative w-full overflow-hidden rounded-3xl"
+                >
+                  <Image
+                    src={image.src}
+                    alt={image.alt || "Masonry image"}
+                    width={image.width || 900}
+                    height={image.height || 1400}
+                    priority={shouldPrioritize}
+                    loading={shouldPrioritize ? "eager" : "lazy"}
+                    sizes={sizes}
+                    className={cn("block h-auto w-full object-cover", imageClassName)}
+                    style={{
+                      minHeight: estimatedHeight,
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    });
+
+  if (images.length === 0) {
+    return (
+      <div
+        className={cn("relative w-full overflow-hidden", className)}
+        style={
+          {
+            "--masonry-gap": `${gap}px`,
+            "--masonry-speed": `${speed}s`,
+          } as React.CSSProperties
         }
-      },
-      { rootMargin: "200px" }, // load earlier for smoother UX
+      >
+        <div className="pointer-events-none absolute inset-0 z-10">{overlay}</div>
+      </div>
     );
-
-    const currentLoader = loaderRef.current;
-    if (currentLoader) observerRef.current.observe(currentLoader);
-
-    return () => {
-      if (observerRef.current && currentLoader) {
-        observerRef.current.unobserve(currentLoader);
-      }
-    };
-  }, [fetchImages, page, hasMore, isLoading]);
-
-  // Load very first page
-  // biome-ignore lint: lint/correctness/useExhaustiveDependencies
-  useEffect(() => {
-    if (images.length === 0) {
-      fetchImages(1);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }
 
   return (
-    <div className="min-h-screen">
-      <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-7 2xl:columns-9">
-        {images.map((image) => (
-          <div key={image.id} className="mb-4 break-inside-avoid">
-            <div className="group relative overflow-hidden rounded-2xl shadow-lg shadow-black/40 transition-all duration-300 hover:shadow-2xl hover:shadow-black/60">
-              <Image
-                height={1200}
-                width={600}
-                src={image.src}
-                alt={image.alt}
-                className="
-                    h-auto w-full rounded-2xl object-cover 
-                    transition-transform duration-500 
-                    group-hover:scale-105
-                  "
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
-        ))}
+    <div
+      className={cn("group relative w-full overflow-hidden", className)}
+      style={
+        {
+          "--masonry-gap": `${gap}px`,
+          "--masonry-speed": `${speed}s`,
+        } as React.CSSProperties
+      }
+    >
+      <style>
+        {`
+          @keyframes ${animationIdRef.current} {
+            from {
+              transform: translate3d(0, 0, 0);
+            }
+            to {
+              transform: translate3d(0, calc(-50% - (var(--masonry-gap) / 2)), 0);
+            }
+          }
+        `}
+      </style>
+
+      <div className="pointer-events-none absolute inset-0 z-10">{overlay}</div>
+
+      <div
+        className="grid w-full md:hidden"
+        style={{
+          gap: "var(--masonry-gap)",
+          gridTemplateColumns: `repeat(${Math.max(1, mobileColumnCount)}, minmax(0, 1fr))`,
+        }}
+      >
+        {renderColumns(
+          mobileColumns,
+          "(max-width: 768px) 50vw, 100vw",
+          "mobile",
+        )}
       </div>
+
+      <div
+        className="hidden w-full md:grid"
+        style={{
+          gap: "var(--masonry-gap)",
+          gridTemplateColumns: `repeat(${Math.max(1, columnCount)}, minmax(0, 1fr))`,
+        }}
+      >
+        {renderColumns(desktopColumns, imageSizes, "desktop")}
+      </div>
+
+      {fadeEdges && (
+        <>
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-24 bg-linear-to-b from-black/30 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-24 bg-linear-to-t from-black/30 to-transparent" />
+        </>
+      )}
     </div>
   );
 }
