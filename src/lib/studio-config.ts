@@ -13,14 +13,14 @@ export type StudioItem = {
 export const STUDIO_ITEMS = [
   {
     label: "Image Generate",
-    href: "/generate/image",
+    href: "/generate",
     description: "Generate stunning images from text prompts using AI",
     slug: ["generate", "image"],
     icon: ImageIcon,
   },
   {
     label: "Edit Images",
-    href: "/edit/image",
+    href: "/generate",
     description: "Edit and enhance your images with AI-powered tools",
     slug: ["edit", "image"],
     icon: Wand2,

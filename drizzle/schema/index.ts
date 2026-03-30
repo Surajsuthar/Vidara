@@ -147,6 +147,7 @@ export const media = pgTable(
     url: text("media_url").notNull(), // always R2 URL, never provider URL
     mimeType: text("mime_type"), // "image/png" | "image/webp"
     aspectRatio: text("aspect_ratio"),
+    seed: varchar("seed").notNull(),
     width: integer("width"),
     height: integer("height"),
     creditUsage: integer("total_credit_usage"),

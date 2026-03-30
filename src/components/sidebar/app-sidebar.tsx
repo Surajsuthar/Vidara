@@ -39,7 +39,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>Vidara</SidebarHeader>
-
       <SidebarContent>
         <NavMain />
         <NavSecondary items={authNav} className="mt-auto" />

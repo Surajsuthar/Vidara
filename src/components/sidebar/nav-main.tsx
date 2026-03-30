@@ -5,6 +5,7 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
 } from "@/components/ui/sidebar";
+import { MessageHistorys } from "../message-history";
 import { Studio } from "./studio";
 
 export function NavMain() {
@@ -14,6 +15,10 @@ export function NavMain() {
       <SidebarMenu>
         <Studio />
       </SidebarMenu>
+      <SidebarGroupLabel>Previews Chats</SidebarGroupLabel>
+      <SidebarGroup>
+        <MessageHistorys />
+      </SidebarGroup>
     </SidebarGroup>
   );
 }
