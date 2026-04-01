@@ -1,5 +1,5 @@
-import { env } from "@/utils/env";
 import Redis, { type RedisOptions } from "ioredis";
+import { env } from "@/utils/env";
 
 export class RedisConnection {
   private static instance: Redis;
@@ -9,7 +9,7 @@ export class RedisConnection {
   static getInstance(): Redis {
     if (!RedisConnection.instance) {
       const options: RedisOptions = {
-        host:env.REDIS_HOST ?? "localhost",
+        host: env.REDIS_HOST ?? "localhost",
         port: Number(env.REDIS_PORT ?? 6379),
         password: env.REDIS_PASSWORD,
         tls: {},

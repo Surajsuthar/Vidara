@@ -230,9 +230,9 @@ export function getDefaultImageConfig(
     : undefined;
 
   const quality = modelConfig.supportsQuality
-    ? (modelConfig.quality?.includes("standard")
-        ? "standard"
-        : modelConfig.quality?.[0])
+    ? modelConfig.quality?.includes("standard")
+      ? "standard"
+      : modelConfig.quality?.[0]
     : undefined;
 
   return {
@@ -251,7 +251,9 @@ export function normalizeImageConfigForModel(
 ): ImageConfigState {
   const nextConfig: ImageConfigState = {
     ...config,
-    aspectRatio: modelConfig.supportsAspectRatio ? config.aspectRatio : undefined,
+    aspectRatio: modelConfig.supportsAspectRatio
+      ? config.aspectRatio
+      : undefined,
     size: modelConfig.supportsSize ? config.size : undefined,
     quality: modelConfig.supportsQuality ? config.quality : undefined,
     seed: modelConfig.supportsSeed ? config.seed : undefined,
@@ -295,7 +297,9 @@ export function normalizeImageConfigForModel(
     nextConfig.n = maxBatchSize;
   }
 
-  if (!BATCH_SIZES.includes((nextConfig.n ?? 1) as (typeof BATCH_SIZES)[number])) {
+  if (
+    !BATCH_SIZES.includes((nextConfig.n ?? 1) as (typeof BATCH_SIZES)[number])
+  ) {
     nextConfig.n = BATCH_SIZES.find((value) => value <= maxBatchSize) ?? 1;
   }
 
@@ -530,20 +534,22 @@ export default function ImageConfig({
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
-              {BATCH_SIZES.filter((n) => n <= modelConfig.maxBatchSize).map((n) => (
-                <DropdownMenuItem
-                  key={n}
-                  onSelect={() => onChange({ n })}
-                  className={`flex items-center gap-2.5 ${is(batchN, n) ? "bg-accent" : ""}`}
-                >
-                  <BatchGrid n={n} />
-                  <span
-                    className={`text-sm ${is(batchN, n) ? "font-semibold" : ""}`}
+              {BATCH_SIZES.filter((n) => n <= modelConfig.maxBatchSize).map(
+                (n) => (
+                  <DropdownMenuItem
+                    key={n}
+                    onSelect={() => onChange({ n })}
+                    className={`flex items-center gap-2.5 ${is(batchN, n) ? "bg-accent" : ""}`}
                   >
-                    {n} image{n !== 1 ? "s" : ""}
-                  </span>
-                </DropdownMenuItem>
-              ))}
+                    <BatchGrid n={n} />
+                    <span
+                      className={`text-sm ${is(batchN, n) ? "font-semibold" : ""}`}
+                    >
+                      {n} image{n !== 1 ? "s" : ""}
+                    </span>
+                  </DropdownMenuItem>
+                ),
+              )}
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>

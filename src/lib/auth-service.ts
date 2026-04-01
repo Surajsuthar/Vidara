@@ -2,7 +2,6 @@ import { headers } from "next/headers";
 import type { User } from "../../drizzle/schema";
 import { auth } from "./auth";
 
-
 /**
  *
  * for server side call

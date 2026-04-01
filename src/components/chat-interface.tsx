@@ -203,8 +203,7 @@ export default function ChatInterface() {
           "success" in json
             ? json.data
             : "Image generation queued successfully.",
-        result:
-          "success" in json && "result" in json ? json.result : undefined,
+        result: "success" in json && "result" in json ? json.result : undefined,
         requestId:
           "success" in json && "requestId" in json ? json.requestId : undefined,
       };
@@ -405,7 +404,9 @@ export default function ChatInterface() {
                 <div>{generationQuery.model}</div>
                 {activeRequestId && (
                   <div className="text-[10px] text-[#888]">
-                    {isPollingGenerationStatus ? "Checking status..." : "Queued"}
+                    {isPollingGenerationStatus
+                      ? "Checking status..."
+                      : "Queued"}
                   </div>
                 )}
               </div>

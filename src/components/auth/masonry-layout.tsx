@@ -132,7 +132,10 @@ export default function MasonryLayout({
                     priority={shouldPrioritize}
                     loading={shouldPrioritize ? "eager" : "lazy"}
                     sizes={sizes}
-                    className={cn("block h-auto w-full object-cover", imageClassName)}
+                    className={cn(
+                      "block h-auto w-full object-cover",
+                      imageClassName,
+                    )}
                     style={{
                       minHeight: estimatedHeight,
                     }}
@@ -156,7 +159,9 @@ export default function MasonryLayout({
           } as React.CSSProperties
         }
       >
-        <div className="pointer-events-none absolute inset-0 z-10">{overlay}</div>
+        <div className="pointer-events-none absolute inset-0 z-10">
+          {overlay}
+        </div>
       </div>
     );
   }

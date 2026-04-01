@@ -44,10 +44,7 @@ export class GenerationQueue extends BaseQueue<
     return GenerationQueue.instance;
   }
 
-  async enqueueImageGeneration(
-    data: GenerationJobData,
-    options?: JobsOptions,
-  ) {
+  async enqueueImageGeneration(data: GenerationJobData, options?: JobsOptions) {
     return this.add("generate-image", data, {
       jobId: data.requestId,
       ...options,

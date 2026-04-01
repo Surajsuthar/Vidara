@@ -23,7 +23,7 @@ export async function generateOpenAI(
   const isLegacy = modelId === "dall-e-2" || modelId === "dall-e-3";
 
   const size = opts.size ? getSize(opts.size) : undefined;
-  
+
   const providerOptions: JSONObject = {};
 
   if (!isLegacy && opts.quality) {

@@ -48,7 +48,11 @@ export function buildMasonryImagesFromKeys(
 
   return keys.map((key, index) => {
     const cleanKey = key.replace(/^\/+/, "");
-    const width = getDimensionValue(options.widths ?? [900, 900, 900, 900], index, 900);
+    const width = getDimensionValue(
+      options.widths ?? [900, 900, 900, 900],
+      index,
+      900,
+    );
     const height = getDimensionValue(
       options.heights ?? [1200, 1480, 1320, 1640, 1400, 1560],
       index,
@@ -74,7 +78,8 @@ export function buildMasonryImagesFromIndexes(
     return [];
   }
 
-  const folder = options.folder?.trim().replace(/^\/+|\/+$/g, "") || DEFAULT_R2_FOLDER;
+  const folder =
+    options.folder?.trim().replace(/^\/+|\/+$/g, "") || DEFAULT_R2_FOLDER;
   const extensions = options.extensions?.length
     ? options.extensions
     : ["webp", "jpg", "jpeg", "png"];

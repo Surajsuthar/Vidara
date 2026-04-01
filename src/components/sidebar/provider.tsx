@@ -2,8 +2,8 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type * as React from "react";
-import { Toaster } from "../ui/sonner";
 import { ThemeProvider } from "../providers/theme-provider";
+import { Toaster } from "../ui/sonner";
 
 const queryClient = new QueryClient({
   defaultOptions: {

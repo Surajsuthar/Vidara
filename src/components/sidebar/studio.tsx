@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, ChevronsUpDown, ImageIcon } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,13 +13,21 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useGenerateContext } from "@/context/generate-context";
 import { STUDIO_ITEMS } from "@/lib/studio-config";
 
 export function Studio() {
   const router = useRouter();
-  const pathname = usePathname();
+  const { resource, setResource } = useGenerateContext();
 
-  const selected = STUDIO_ITEMS.find((item) => pathname === item.href) ?? null;
+  const selected = STUDIO_ITEMS.find(
+    (item) => `${item.slug[0]}/${item.slug[1]}` === resource,
+  );
+
+  const handleSelect = (item: (typeof STUDIO_ITEMS)[number]) => {
+    setResource(`${item.slug[0]}/${item.slug[1]}`);
+    router.push(item.href);
+  };
 
   return (
     <SidebarMenu>
@@ -51,11 +59,11 @@ export function Studio() {
             align="start"
           >
             {STUDIO_ITEMS.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = `${item.slug[0]}/${item.slug[1]}` === resource;
               return (
                 <DropdownMenuItem
-                  key={item.href}
-                  onSelect={() => router.push(item.href)}
+                  key={item.label}
+                  onSelect={() => handleSelect(item)}
                   className="flex flex-col items-start gap-0.5 py-2"
                 >
                   <div className="flex w-full items-center">

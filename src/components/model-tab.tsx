@@ -83,7 +83,8 @@ function getProviderForModel(model?: ImageModel): ModelProvider {
   if (!meta) return PROVIDER_TABS[0]?.value ?? ModelProvider.GOOGLE;
 
   return (
-    PROVIDER_TABS.find((tab) => tab.providerIds.includes(meta.provider))?.value ??
+    PROVIDER_TABS.find((tab) => tab.providerIds.includes(meta.provider))
+      ?.value ??
     PROVIDER_TABS[0]?.value ??
     ModelProvider.GOOGLE
   );
@@ -136,7 +137,11 @@ export function Modeltab({ selectedModel, onSelectModel }: ModeltabProps) {
   };
 
   return (
-    <Tabs value={activeProvider} onValueChange={(value) => setActiveProvider(value as ModelProvider)} className="w-full">
+    <Tabs
+      value={activeProvider}
+      onValueChange={(value) => setActiveProvider(value as ModelProvider)}
+      className="w-full"
+    >
       {/* Scroll wrapper */}
       <div className="relative flex items-center rounded-lg bg-[#2a2a2a]">
         {/* Left arrow */}

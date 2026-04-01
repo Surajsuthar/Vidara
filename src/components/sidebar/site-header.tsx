@@ -2,26 +2,38 @@
 
 import { Github } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useGenerateContext } from "@/context/generate-context";
 import { useGithub } from "@/hooks/use-github-count";
 import { useSession } from "@/lib/auth-client";
-import { getStudioItemByPath } from "@/lib/studio-config";
+import { STUDIO_ITEMS } from "@/lib/studio-config";
 import { NavUser } from "./nav-user";
 
 export function SiteHeader() {
   const { stargazers_count } = useGithub();
   const { data: session, isPending } = useSession();
-  const pathName = usePathname();
-  const studioItem = getStudioItemByPath(pathName);
-  const pageTitle = studioItem?.label ?? pathName.slice(1);
+  const { resource } = useGenerateContext();
+
+  const studioItem = STUDIO_ITEMS.find(
+    (item) => `${item.slug[0]}/${item.slug[1]}` === resource,
+  );
+  const pageTitle = studioItem?.label ?? null;
+
+  // Build breadcrumb from context resource
+  let breadcrumb = null;
+  if (resource) {
+    const resourceLabel = resource
+      .split("/")
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" / ");
+    breadcrumb = resourceLabel;
+  }
 
   const user = session?.user
     ? {
@@ -34,8 +46,6 @@ export function SiteHeader() {
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b border-border/40 bg-background/60 backdrop-blur-xl supports-backdrop-filter:bg-background/60 sticky top-0 z-40 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-2 lg:gap-2 lg:px-4">
-        {/* Sidebar toggle */}
-        {/* <SidebarTrigger className="-ml-1" /> */}
         {pageTitle && (
           <>
             <h1 className="text-base font-medium">{pageTitle}</h1>
@@ -45,9 +55,6 @@ export function SiteHeader() {
             />
           </>
         )}
-
-        {/* Page title */}
-
         {/* Right side */}
         <div className="ml-auto flex items-center gap-2">
           {/* Credits */}

@@ -90,7 +90,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
               <div className="p-2">
                 <p>build by</p>
-                <Link href="https://x.com/Suraj__0067" className="text-sm">@Suraj__0067</Link>
+                <Link href="https://x.com/Suraj__0067" className="text-sm">
+                  @Suraj__0067
+                </Link>
               </div>
             </div>
           </div>

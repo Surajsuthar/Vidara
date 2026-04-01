@@ -14,9 +14,7 @@ function isUseQueryDataOptions(
   options: boolean | UseQueryDataOptions | undefined,
 ): options is UseQueryDataOptions {
   return (
-    typeof options === "object" &&
-    options !== null &&
-    !Array.isArray(options)
+    typeof options === "object" && options !== null && !Array.isArray(options)
   );
 }
 

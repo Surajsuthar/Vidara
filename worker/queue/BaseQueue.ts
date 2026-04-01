@@ -1,7 +1,11 @@
 import { type JobsOptions, Queue, type QueueOptions } from "bullmq";
 import { RedisConnection } from "./RedisConnection";
 
-export abstract class BaseQueue<TJobData, TResult = unknown, NameType extends string = string> {
+export abstract class BaseQueue<
+  TJobData,
+  TResult = unknown,
+  NameType extends string = string,
+> {
   protected queue: Queue<TJobData, TResult, NameType>;
 
   constructor(queueName: string, options?: Partial<QueueOptions>) {

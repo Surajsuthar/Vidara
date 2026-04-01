@@ -7,14 +7,14 @@ import type {
   ImageOutputFormat,
   QualityTier,
 } from "@/ai/types";
-import { Errors, wrapError } from "@/lib/error";
+import { GenerationQueue } from "@/jobs/generation/GenerationQueue";
 import {
   createGenerationJobState,
   getGenerationJobState,
 } from "@/jobs/generation/status-store";
-import { GenerationQueue } from "@/jobs/generation/GenerationQueue";
-import { getClientInfo, rateLimit } from "@/lib/utils";
 import { getMyUser } from "@/lib/auth-service";
+import { Errors, wrapError } from "@/lib/error";
+import { getClientInfo, rateLimit } from "@/lib/utils";
 
 const generateRequestSchema = z.object({
   prompt: z.string().trim().min(1),
@@ -45,12 +45,15 @@ const generateRequestSchema = z.object({
     .optional(),
   size: z.string().trim().min(1).optional(),
   quality: z
-    .enum(
-      ["low", "standard", "hd", "ultra", "premium", "medium", "high"] satisfies [
-        QualityTier,
-        ...QualityTier[],
-      ],
-    )
+    .enum([
+      "low",
+      "standard",
+      "hd",
+      "ultra",
+      "premium",
+      "medium",
+      "high",
+    ] satisfies [QualityTier, ...QualityTier[]])
     .optional(),
   outputFormat: z
     .enum(["png", "webp", "jpeg"] satisfies [
@@ -62,9 +65,9 @@ const generateRequestSchema = z.object({
 });
 
 export async function GET(req: Request) {
-  const userAuth = await getMyUser()
+  const userAuth = await getMyUser();
 
-  if(!userAuth) {
+  if (!userAuth) {
     const appError = Errors.unauthorized();
     return Response.json(appError.toResponse(), {
       status: appError.httpStatus,
@@ -99,10 +102,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const userAuth = await getMyUser();
 
-    const userAuth = await getMyUser()
-
-    if(!userAuth) {
+    if (!userAuth) {
       const appError = Errors.unauthorized();
       return Response.json(appError.toResponse(), {
         status: appError.httpStatus,
@@ -176,7 +178,7 @@ export async function POST(req: Request) {
       },
     );
   } catch (error) {
-    console.log("error",error)
+    console.log("error", error);
     const appError =
       error instanceof z.ZodError
         ? Errors.validation("Invalid request payload.", {
