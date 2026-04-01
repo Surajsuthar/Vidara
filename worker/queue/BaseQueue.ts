@@ -1,6 +1,8 @@
 import { type JobsOptions, Queue, type QueueOptions } from "bullmq";
 import { RedisConnection } from "./RedisConnection";
 
+type QueueAdd<T, R, N extends string> = Queue<T, R, N>["add"];
+
 export abstract class BaseQueue<
   TJobData,
   TResult = unknown,
@@ -29,14 +31,18 @@ export abstract class BaseQueue<
   }
 
   async add(jobName: NameType, data: TJobData, options?: JobsOptions) {
-    return this.queue.add(jobName, data, options);
+    return this.queue.add(
+      jobName as Parameters<QueueAdd<TJobData, TResult, NameType>>[0],
+      data as Parameters<QueueAdd<TJobData, TResult, NameType>>[1],
+      options,
+    );
   }
 
   async addBulk(
     jobs: { name: NameType; data: TJobData; opts?: JobsOptions }[],
   ) {
     //
-    return this.queue.addBulk(jobs);
+    return this.queue.addBulk(jobs as Parameters<typeof this.queue.addBulk>[0]);
   }
 
   async getJobCounts() {

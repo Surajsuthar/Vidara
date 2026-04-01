@@ -3,20 +3,20 @@
 import { ChevronDown, CircleChevronUp, Image } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import type { ImageGenOptions, ImageGenResult, ImageModel } from "@/ai/types";
 import { getModelMeta, MODEL_REGISTRY } from "@/ai/factory";
-import { useMutationData } from "@/hooks/use-mutate-data";
-import { useQueryData } from "@/hooks/use-query-data";
+import type { ImageGenOptions, ImageGenResult, ImageModel } from "@/ai/types";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useMutationData } from "@/hooks/use-mutate-data";
+import { useQueryData } from "@/hooks/use-query-data";
 import ImageConfig, {
   getDefaultImageConfig,
-  normalizeImageConfigForModel,
   type ImageConfigState,
+  normalizeImageConfigForModel,
 } from "./model-config";
 import { Modeltab } from "./model-tab";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
