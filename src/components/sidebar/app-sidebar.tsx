@@ -19,7 +19,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     () => [
       {
         title: "Explore",
-        url: "/explore",
+        url: "/",
         icon: IconCompass,
       },
       {

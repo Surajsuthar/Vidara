@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export const authRoute = ["/auth"];
 
-export const protectedRoute = ["/library", "/settings"];
+export const protectedRoute = ["/library", "/settings", "/generate"];
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -19,7 +19,7 @@ export async function proxy(req: NextRequest) {
   }
 
   if (sessionCookie && authRoute.some((path) => pathname.startsWith(path))) {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/library", req.url));
   }
 
   return NextResponse.next();

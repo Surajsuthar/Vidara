@@ -2,6 +2,7 @@
 
 import { Github } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -19,22 +20,14 @@ export function SiteHeader() {
   const { stargazers_count } = useGithub();
   const { data: session, isPending } = useSession();
   const { resource } = useGenerateContext();
+  const pathname = usePathname();
 
   const studioItem = STUDIO_ITEMS.find(
     (item) => `${item.slug[0]}/${item.slug[1]}` === resource,
   );
-  const pageTitle = studioItem?.label ?? null;
+  const pageTitle = studioItem?.label ?? pathname.split("/").pop();
 
   // Build breadcrumb from context resource
-  let breadcrumb = null;
-  if (resource) {
-    const resourceLabel = resource
-      .split("/")
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(" / ");
-    breadcrumb = resourceLabel;
-  }
-
   const user = session?.user
     ? {
         name: session.user.name ?? "User",
