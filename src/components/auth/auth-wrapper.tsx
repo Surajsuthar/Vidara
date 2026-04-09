@@ -36,7 +36,7 @@ export default function AuthWrapper() {
   };
 
   return (
-    <Card className="w-full max-w-md rounded-2xl bg-white/5 dark:bg-white/12 backdrop-blur-xl border border-white/12 shadow-2xl">
+    <Card className="w-full max-w-md rounded-2xl backdrop-blur-xl border border-white/12 shadow-2xl">
       <CardHeader className="text-center">
         <CardTitle className="text-xl md:text-2xl font-semibold">
           Hey, Welcome
