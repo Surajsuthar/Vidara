@@ -99,7 +99,10 @@ export default function AuthWrapper() {
         </div>
         <div className="text-[10px]">
           By Singup, you agree to our Terms and{" "}
-          <Link className="font-bold hover:underline" href="/privacy-policy">
+          <Link
+            className="font-bold hover:underline"
+            href="/app/privacy-policy"
+          >
             {" "}
             Privacy Policy
           </Link>

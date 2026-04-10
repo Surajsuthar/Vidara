@@ -2,12 +2,20 @@
 
 import { Github } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import MasonryGallery from "@/components/masonry-layout";
 import { Button } from "@/components/ui/button";
 import { useGithub } from "@/hooks/use-github-count";
+import { useSession } from "@/lib/auth-client";
 
 export default function AppPage() {
   const { stargazers_count } = useGithub();
+
+  const user = useSession();
+
+  if (user) {
+    redirect("/explore");
+  }
 
   return (
     <main className="min-h-screen w-full flex flex-col">

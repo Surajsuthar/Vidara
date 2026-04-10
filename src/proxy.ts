@@ -18,8 +18,13 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/auth", req.url));
   }
 
-  if (sessionCookie && authRoute.some((path) => pathname.startsWith(path))) {
-    return NextResponse.redirect(new URL("/library", req.url));
+  if (
+    sessionCookie &&
+    authRoute.some((path) =>
+      path === "/" ? pathname === "/" : pathname.startsWith(path),
+    )
+  ) {
+    return NextResponse.redirect(new URL("/explore", req.url));
   }
 
   return NextResponse.next();

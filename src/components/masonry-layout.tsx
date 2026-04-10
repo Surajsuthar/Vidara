@@ -131,7 +131,7 @@ function ImageCard({ item }: { item: ImageItem }) {
 
   return (
     <div
-      className="group relative overflow-hidden rounded-xl bg-white/5 cursor-pointer
+      className="group relative overflow-hidden rounded-none bg-white/5 cursor-pointer
                  transition-all duration-300 ease-out
                  hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50"
     >
@@ -198,7 +198,7 @@ function VideoCard({ item }: { item: VideoItem }) {
 
   return (
     <div
-      className="group relative overflow-hidden rounded-xl bg-white/5 cursor-pointer
+      className="group relative overflow-hidden rounded-none bg-white/5 cursor-pointer
                  transition-all duration-300 ease-out
                  hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50 border-none bg-transparent p-0"
       onMouseEnter={handleMouseEnter}
@@ -220,7 +220,7 @@ function VideoCard({ item }: { item: VideoItem }) {
         />
 
         {/* Video badge */}
-        <div
+        {/*<div
           className="absolute top-2 left-2 z-10 flex items-center gap-1
                         bg-black/70 backdrop-blur-sm rounded px-2 py-0.5"
         >
@@ -231,7 +231,7 @@ function VideoCard({ item }: { item: VideoItem }) {
           <span className="text-[9px] font-bold tracking-widest text-white/90 uppercase">
             {playing ? "Live" : "Video"}
           </span>
-        </div>
+        </div>*/}
 
         {/* Hover overlay */}
         <div
@@ -371,36 +371,6 @@ export default function MasonryGallery() {
 
 /*
 ══════════════════════════════════════════════════════════════
-  TAILWIND CONFIG — add these to your tailwind.config.js
-══════════════════════════════════════════════════════════════
-
-module.exports = {
-  theme: {
-    extend: {
-      animation: {
-        shimmer: "shimmer 1.6s infinite",
-      },
-      keyframes: {
-        shimmer: {
-          "0%":   { backgroundPosition: "200% center" },
-          "100%": { backgroundPosition: "-200% center" },
-        },
-      },
-    },
-  },
-};
-
-══════════════════════════════════════════════════════════════
-  USAGE
-══════════════════════════════════════════════════════════════
-
-  import MasonryGallery from "./MasonryGallery";
-
-  export default function App() {
-    return <MasonryGallery />;
-  }
-
-══════════════════════════════════════════════════════════════
   REAL API INTEGRATION — swap generatePage() with this:
 ══════════════════════════════════════════════════════════════
 
@@ -409,18 +379,4 @@ module.exports = {
   // data.items  → array of media objects (must include width + height)
   // data.hasMore → boolean
 
-══════════════════════════════════════════════════════════════
-  COLUMN LAYOUT REFERENCE
-══════════════════════════════════════════════════════════════
-
-  Breakpoint    Tailwind class     Columns
-  ──────────────────────────────────────────
-  < 640px       columns-2          2
-  640–767px     sm:columns-3       3
-  768–1023px    md:columns-3       3
-  1024–1279px   lg:columns-4       4
-  1280–1535px   xl:columns-5       5
-  ≥ 1536px      2xl:columns-6      6
-
-══════════════════════════════════════════════════════════════
 */
