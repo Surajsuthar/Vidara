@@ -2,6 +2,7 @@
 
 import { Github } from "lucide-react";
 import Link from "next/link";
+import MasonryGallery from "@/components/masonry-layout";
 import { Button } from "@/components/ui/button";
 import { useGithub } from "@/hooks/use-github-count";
 
@@ -48,6 +49,9 @@ export default function AppPage() {
           </div>
         </div>
       </header>
+      <div>
+        <MasonryGallery />
+      </div>
     </main>
   );
 }
