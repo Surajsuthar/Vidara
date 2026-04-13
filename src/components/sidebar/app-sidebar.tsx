@@ -23,7 +23,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: IconCompass,
       },
       {
-        title: "library",
+        title: "Media",
         url: "/library",
         icon: Folder,
       },

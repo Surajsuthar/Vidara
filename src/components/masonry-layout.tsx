@@ -197,13 +197,13 @@ function VideoCard({ item }: { item: VideoItem }) {
   }, []);
 
   return (
+    // biome-ignore  lint/a11y/noStaticElementInteractions: leave aspectRatio as dynamic style pro
     <div
       className="group relative overflow-hidden rounded-none bg-white/5 cursor-pointer
                  transition-all duration-300 ease-out
                  hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50 border-none bg-transparent p-0"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      type="button"
     >
       <div
         className="relative w-full overflow-hidden bg-white/4"
@@ -247,10 +247,6 @@ function VideoCard({ item }: { item: VideoItem }) {
   );
 }
 
-/* ─────────────────────────────────────────────
-   MASONRY CARD — routes to Image or Video
-   ───────────────────────────────────────────── */
-
 function MasonryCard({ item }: { item: MediaItem }) {
   return item.type === "video" ? (
     <VideoCard item={item as VideoItem} />
@@ -259,9 +255,6 @@ function MasonryCard({ item }: { item: MediaItem }) {
   );
 }
 
-/* ─────────────────────────────────────────────
-   LOADING DOTS
-   ───────────────────────────────────────────── */
 function LoadingDots() {
   return (
     <div className="flex items-center justify-center gap-1.5 py-10">
@@ -276,9 +269,6 @@ function LoadingDots() {
   );
 }
 
-/* ─────────────────────────────────────────────
-   MAIN GALLERY COMPONENT
-   ───────────────────────────────────────────── */
 export default function MasonryGallery() {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [page, setPage] = useState<number>(1);
