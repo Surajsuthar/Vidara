@@ -1,6 +1,5 @@
 import { xai } from "@ai-sdk/xai";
 import { generateImage } from "ai";
-import { getSize } from "@/lib/utils";
 import type { ImageGenOptions, ImageGenResult } from "../types";
 
 export async function generateXai(

@@ -19,7 +19,7 @@ const PROVIDER_LABELS: Partial<Record<ModelProvider, string>> = {
   [ModelProvider.XAI]: "xAI",
   [ModelProvider.FAL]: "Fal",
   [ModelProvider.REPLICATE]: "Replicate",
-  [ModelProvider.DEEPINFRE]: "DeepInfra",
+  [ModelProvider.DEEPINFRA]: "DeepInfra",
   [ModelProvider.AMAZON]: "Amazon Bedrock",
 };
 
@@ -50,7 +50,7 @@ const PROVIDER_TABS: ProviderTab[] = [
     providerIds: ["replicate"],
   },
   {
-    value: ModelProvider.DEEPINFRE,
+    value: ModelProvider.DEEPINFRA,
     icon: Icons.DeepInfra,
     providerIds: ["deepinfra"],
   },

@@ -1,5 +1,4 @@
 import z from "zod";
-import { generate } from "@/ai/generator";
 import type {
   AspectRatio,
   ImageGenOptions,
@@ -8,6 +7,7 @@ import type {
   QualityTier,
 } from "@/ai/types";
 import { GenerationQueue } from "@/jobs/generation/GenerationQueue";
+import { createPendingGenerationRecord } from "@/jobs/generation/persistence";
 import {
   createGenerationJobState,
   getGenerationJobState,
@@ -34,6 +34,7 @@ const generateRequestSchema = z.object({
       "4:5",
       "5:4",
       "9:21",
+      "1:9",
       "21:9",
       "2:1",
       "1:2",
@@ -84,10 +85,17 @@ export async function GET(req: Request) {
     });
   }
 
-  const job = getGenerationJobState(requestId);
+  const job = await getGenerationJobState(requestId);
 
   if (!job) {
     const appError = Errors.notFound("Generation job");
+    return Response.json(appError.toResponse(), {
+      status: appError.httpStatus,
+    });
+  }
+
+  if (job.userId && job.userId !== userAuth.id) {
+    const appError = Errors.forbidden();
     return Response.json(appError.toResponse(), {
       status: appError.httpStatus,
     });
@@ -152,8 +160,15 @@ export async function POST(req: Request) {
     }
 
     const requestId = crypto.randomUUID();
-    createGenerationJobState({
+    await createPendingGenerationRecord({
+      requestId,
+      userId: userAuth.id,
+      options: payload,
+    });
+
+    await createGenerationJobState({
       id: requestId,
+      userId: userAuth.id,
       prompt: payload.prompt,
       model: payload.model,
     });
@@ -161,6 +176,7 @@ export async function POST(req: Request) {
     const queue = GenerationQueue.getInstance();
     await queue.enqueueImageGeneration({
       requestId,
+      userId: userAuth.id,
       prompt: payload.prompt,
       options: payload,
     });

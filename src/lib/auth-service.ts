@@ -12,5 +12,5 @@ export async function getMyUser(): Promise<User | null> {
     headers: requestHeaders,
   });
 
-  return session as User | null;
+  return (session?.user as User | undefined) ?? null;
 }

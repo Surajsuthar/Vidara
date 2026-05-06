@@ -15,6 +15,13 @@
       "when": 1772617727573,
       "tag": "0001_wooden_glorian",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777622400000,
+      "tag": "0002_add_media_seed",
+      "breakpoints": true
     }
   ]
 }

@@ -1,12 +1,17 @@
 import type { Job } from "bullmq";
 import { generate } from "@/ai/generator";
 import type { ImageGenOptions, ImageGenResult } from "@/ai/types";
+import { BaseWorker } from "../../../worker/queue/BaseWorker";
+import {
+  markGenerationFailed,
+  markGenerationProcessing,
+  persistGenerationResult,
+} from "./persistence";
 import {
   setGenerationJobCompleted,
   setGenerationJobFailed,
   setGenerationJobProcessing,
 } from "./status-store";
-import { BaseWorker } from "../../../worker/queue/BaseWorker";
 
 export type GenerationJobData = {
   requestId: string;
@@ -50,13 +55,18 @@ export class GenerationWorker extends BaseWorker<
       this.failPermanently("Prompt is required for generation jobs.");
     }
 
+    if (!userId) {
+      this.failPermanently("User id is required for generation jobs.");
+    }
+
     console.log(
       `[GenerationWorker] Job ${job.id} | requestId: ${requestId} | userId: ${
         userId ?? "anonymous"
       } | model: ${options.model}`,
     );
 
-    setGenerationJobProcessing(requestId);
+    await setGenerationJobProcessing(requestId);
+    await markGenerationProcessing(requestId);
 
     await job.updateProgress(10);
 
@@ -65,14 +75,27 @@ export class GenerationWorker extends BaseWorker<
       prompt,
     });
 
+    await job.updateProgress(80);
+
+    const persistedImages = await persistGenerationResult({
+      requestId,
+      userId,
+      options: {
+        ...options,
+        prompt,
+      },
+      result,
+    });
+
     await job.updateProgress(100);
 
-    setGenerationJobCompleted(requestId, {
+    await setGenerationJobCompleted(requestId, {
       model: result.model,
       warnings: result.warnings,
       durationMs: result.durationMs,
-      images: result.images.map((image) => ({
-        base64: image.base64,
+      images: persistedImages.map((image) => ({
+        mediaId: image.mediaId,
+        url: image.url,
         mimeType: image.mimeType,
         width: image.width,
         height: image.height,
@@ -98,9 +121,21 @@ export class GenerationWorker extends BaseWorker<
     err: Error,
   ): void {
     if (job?.data.requestId) {
-      setGenerationJobFailed(job.data.requestId, {
-        code: "IMAGE_GENERATION_FAILED",
-        message: err.message,
+      void Promise.all([
+        setGenerationJobFailed(job.data.requestId, {
+          code: "IMAGE_GENERATION_FAILED",
+          message: err.message,
+        }),
+        markGenerationFailed({
+          requestId: job.data.requestId,
+          errorMessage: err.message,
+        }),
+      ]).catch((statusError) => {
+        console.error(
+          `[GenerationWorker] Failed to persist failure state | requestId: ${job.data.requestId} | error: ${
+            statusError instanceof Error ? statusError.message : statusError
+          }`,
+        );
       });
     }
 

@@ -6,6 +6,7 @@ import {
 
 type UseQueryDataOptions = {
   enabled?: boolean;
+  staleTime?: number;
   refetchInterval?: number | false;
   refetchIntervalInBackground?: boolean;
 };
@@ -31,6 +32,7 @@ export const useQueryData = <TData = unknown>(
     useQuery<TData>({
       queryKey,
       queryFn,
+      staleTime: normalizedOptions.staleTime ?? 0,
       enabled: normalizedOptions.enabled,
       refetchInterval: normalizedOptions.refetchInterval,
       refetchIntervalInBackground:

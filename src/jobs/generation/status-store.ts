@@ -1,3 +1,5 @@
+import { RedisConnection } from "../../../worker/queue/RedisConnection";
+
 export type GenerationJobStatus =
   | "queued"
   | "processing"
@@ -5,7 +7,9 @@ export type GenerationJobStatus =
   | "failed";
 
 export type GenerationImageResult = {
-  base64: string;
+  base64?: string;
+  url?: string;
+  mediaId?: string;
   mimeType: string;
   width?: number;
   height?: number;
@@ -27,6 +31,7 @@ export type GenerationJobError = {
 
 export type GenerationJobState = {
   id: string;
+  userId?: string;
   status: GenerationJobStatus;
   prompt: string;
   model: string;
@@ -37,20 +42,52 @@ export type GenerationJobState = {
 };
 
 const generationStatusStore = new Map<string, GenerationJobState>();
+const STORE_TTL_SECONDS = 60 * 60 * 24;
+
+function getStoreKey(id: string) {
+  return `generation:status:${id}`;
+}
+
+async function readState(id: string) {
+  const cached = generationStatusStore.get(id);
+  if (cached) return cached;
+
+  const redis = RedisConnection.getInstance();
+  const raw = await redis.get(getStoreKey(id));
+  if (!raw) return undefined;
+
+  const state = JSON.parse(raw) as GenerationJobState;
+  generationStatusStore.set(id, state);
+  return state;
+}
+
+async function writeState(state: GenerationJobState) {
+  generationStatusStore.set(state.id, state);
+
+  const redis = RedisConnection.getInstance();
+  await redis.set(
+    getStoreKey(state.id),
+    JSON.stringify(state),
+    "EX",
+    STORE_TTL_SECONDS,
+  );
+}
 
 function nowIso() {
   return new Date().toISOString();
 }
 
-export function createGenerationJobState(input: {
+export async function createGenerationJobState(input: {
   id: string;
+  userId?: string;
   prompt: string;
   model: string;
-}): GenerationJobState {
+}): Promise<GenerationJobState> {
   const timestamp = nowIso();
 
   const state: GenerationJobState = {
     id: input.id,
+    userId: input.userId,
     status: "queued",
     prompt: input.prompt,
     model: input.model,
@@ -58,16 +95,16 @@ export function createGenerationJobState(input: {
     updatedAt: timestamp,
   };
 
-  generationStatusStore.set(input.id, state);
+  await writeState(state);
   return state;
 }
 
-export function getGenerationJobState(id: string) {
-  return generationStatusStore.get(id);
+export async function getGenerationJobState(id: string) {
+  return readState(id);
 }
 
-export function setGenerationJobQueued(id: string) {
-  const current = generationStatusStore.get(id);
+export async function setGenerationJobQueued(id: string) {
+  const current = await readState(id);
   if (!current) return undefined;
 
   const next: GenerationJobState = {
@@ -76,12 +113,12 @@ export function setGenerationJobQueued(id: string) {
     updatedAt: nowIso(),
   };
 
-  generationStatusStore.set(id, next);
+  await writeState(next);
   return next;
 }
 
-export function setGenerationJobProcessing(id: string) {
-  const current = generationStatusStore.get(id);
+export async function setGenerationJobProcessing(id: string) {
+  const current = await readState(id);
   if (!current) return undefined;
 
   const next: GenerationJobState = {
@@ -90,15 +127,15 @@ export function setGenerationJobProcessing(id: string) {
     updatedAt: nowIso(),
   };
 
-  generationStatusStore.set(id, next);
+  await writeState(next);
   return next;
 }
 
-export function setGenerationJobCompleted(
+export async function setGenerationJobCompleted(
   id: string,
   result: GenerationJobResult,
 ) {
-  const current = generationStatusStore.get(id);
+  const current = await readState(id);
   if (!current) return undefined;
 
   const next: GenerationJobState = {
@@ -109,12 +146,15 @@ export function setGenerationJobCompleted(
     updatedAt: nowIso(),
   };
 
-  generationStatusStore.set(id, next);
+  await writeState(next);
   return next;
 }
 
-export function setGenerationJobFailed(id: string, error: GenerationJobError) {
-  const current = generationStatusStore.get(id);
+export async function setGenerationJobFailed(
+  id: string,
+  error: GenerationJobError,
+) {
+  const current = await readState(id);
   if (!current) return undefined;
 
   const next: GenerationJobState = {
@@ -124,15 +164,17 @@ export function setGenerationJobFailed(id: string, error: GenerationJobError) {
     updatedAt: nowIso(),
   };
 
-  generationStatusStore.set(id, next);
+  await writeState(next);
   return next;
 }
 
-export function deleteGenerationJobState(id: string) {
-  return generationStatusStore.delete(id);
+export async function deleteGenerationJobState(id: string) {
+  generationStatusStore.delete(id);
+  const redis = RedisConnection.getInstance();
+  return redis.del(getStoreKey(id));
 }
 
-export function listGenerationJobStates() {
+export async function listGenerationJobStates() {
   return Array.from(generationStatusStore.values()).sort((a, b) =>
     a.createdAt.localeCompare(b.createdAt),
   );

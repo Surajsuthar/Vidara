@@ -13,6 +13,7 @@ export type AspectRatio =
   | "4:5"
   | "5:4"
   | "9:21"
+  | "1:9"
   | "21:9"
   | "2:1"
   | "1:2"
@@ -32,15 +33,17 @@ export type QualityTier =
 
 export type ImageOutputFormat = "png" | "webp" | "jpeg";
 
+export type VideoResolution = "480p" | "720p" | "1280x720" | "1920x1080";
+
 export enum ModelProvider {
   GOOGLE = "google",
   OPENAI = "openai",
-  GROK = "grok",
-  KLING = "kling",
   XAI = "xai",
   FAL = "fal",
+  BYTEDANCE = "bytedance",
+  KLING = "kling",
   REPLICATE = "replicate",
-  DEEPINFRE = "deepinfra",
+  DEEPINFRA = "deepinfra",
   AMAZON = "amazon",
 }
 
@@ -50,18 +53,23 @@ export enum mediaType {
 }
 
 export type googleImageGenModels =
-  | "google/imagen-3.0-generate-001"
-  | "google/imagen-3.0-fast-generate-001"
   | "google/imagen-4.0-generate-001"
   | "google/imagen-4.0-fast-generate-001"
   | "google/imagen-4.0-ultra-generate-001"
-  // Google Vertex (same Imagen models, different auth)
-  | "vertex/imagen-3.0-generate-001"
-  | "vertex/imagen-4.0-generate-001"
-  | "vertex/imagen-4.0-ultra-generate-001"
-  //gemini
   | "google/gemini-2.5-flash-image"
-  | "google/gemini-3-pro-image-preview";
+  | "google/gemini-3-pro-image-preview"
+  | "google/gemini-3.1-flash-image-preview";
+
+export type vertexImageGenModels =
+  | "vertex/imagen-3.0-generate-001"
+  | "vertex/imagen-3.0-generate-002"
+  | "vertex/imagen-3.0-fast-generate-001"
+  | "vertex/imagen-4.0-generate-001"
+  | "vertex/imagen-4.0-fast-generate-001"
+  | "vertex/imagen-4.0-ultra-generate-001"
+  | "vertex/gemini-2.5-flash-image"
+  | "vertex/gemini-3-pro-image-preview"
+  | "vertex/gemini-3.1-flash-image-preview";
 
 export type openaiImageGenModels =
   | "openai/dall-e-2"
@@ -70,16 +78,7 @@ export type openaiImageGenModels =
   | "openai/gpt-image-1-mini"
   | "openai/gpt-image-1.5";
 
-export type grokImageGenModels = "grok-imagine-image-pro" | "grok-2-image-1212";
-
-export type klingImageGenModels =
-  | "Kling-image-o1"
-  | "Kling-v2-1"
-  | "Kling-v2"
-  | "Kling-v1-5"
-  | "Kling-v1";
-
-export type xAiImageGenModel = "xai/grok-2-image" | "xai/grok-imagine-image";
+export type xAiImageGenModel = "xai/grok-imagine-image";
 
 export type falImageGenModel =
   | "fal/flux-dev"
@@ -106,14 +105,53 @@ export type deepinfraImageGenModel =
 
 export type amazonImageGenModel = "bedrock/nova-canvas";
 
+export type falVideoGenModel =
+  | "fal/luma-dream-machine/ray-2"
+  | "fal/minimax-video";
+
+export type googleVideoGenModel = "google/veo-2.0-generate-001";
+
+export type vertexVideoGenModel =
+  | "vertex/veo-3.1-generate-001"
+  | "vertex/veo-3.1-fast-generate-001"
+  | "vertex/veo-3.0-generate-001"
+  | "vertex/veo-3.0-fast-generate-001"
+  | "vertex/veo-2.0-generate-001";
+
+export type klingVideoGenModel =
+  | "kling/kling-v2.6-t2v"
+  | "kling/kling-v2.6-i2v"
+  | "kling/kling-v2.6-motion-control";
+
+export type replicateVideoGenModel = "replicate/minimax/video-01";
+
+export type xAiVideoGenModel = "xai/grok-imagine-video";
+
+export type byteDanceVideoGenModel =
+  | "bytedance/seedance-1-5-pro-251215"
+  | "bytedance/seedance-1-0-pro-250528"
+  | "bytedance/seedance-1-0-pro-fast-251015"
+  | "bytedance/seedance-1-0-lite-t2v-250428"
+  | "bytedance/seedance-1-0-lite-i2v-250428";
+
 export type ImageModel =
   | googleImageGenModels
+  | vertexImageGenModels
   | openaiImageGenModels
   | xAiImageGenModel
   | falImageGenModel
   | replicateImageGenModel
   | deepinfraImageGenModel
   | amazonImageGenModel;
+
+export type VideoModel =
+  | falVideoGenModel
+  | googleVideoGenModel
+  | vertexVideoGenModel
+  | klingVideoGenModel
+  | replicateVideoGenModel
+  | xAiVideoGenModel
+  | byteDanceVideoGenModel;
 
 type JSONArray = JSONValue[];
 type JSONValue = null | string | number | boolean | JSONObject | JSONArray;
@@ -135,6 +173,21 @@ export interface ImageGenOptions {
   providerExtras?: JSONObject; // passthrough for provider-specific opts
 }
 
+export interface VideoGenOptions {
+  model: VideoModel;
+  prompt: string;
+  image?: string;
+  videoUrl?: string;
+  negativePrompt?: string;
+  n?: number;
+  aspectRatio?: AspectRatio;
+  resolution?: VideoResolution;
+  duration?: number;
+  fps?: number;
+  seed?: number;
+  providerExtras?: JSONObject;
+}
+
 /**
  * What the generator returns
  */
@@ -146,11 +199,32 @@ export interface ImageGenResult {
 }
 
 export interface GeneratedImage {
-  base64: string;
-  uint8Array: Uint8Array;
+  base64?: string;
+  uint8Array?: Uint8Array;
+  url?: string;
+  mediaId?: string;
   mimeType: string;
   width?: number;
   height?: number;
+}
+
+export interface VideoGenResult {
+  videos: GeneratedVideo[];
+  model: VideoModel;
+  warnings: string[];
+  durationMs: number;
+}
+
+export interface GeneratedVideo {
+  base64?: string;
+  uint8Array?: Uint8Array;
+  url?: string;
+  mediaId?: string;
+  mimeType: string;
+  width?: number;
+  height?: number;
+  duration?: number;
+  fps?: number;
 }
 
 /**
@@ -171,4 +245,31 @@ export interface ModelMeta {
   maxBatchSize: number;
   defaultAspectRatio?: AspectRatio;
   defualtSize?: string;
+}
+
+export interface VideoModelMeta {
+  displayName: string;
+  provider: string;
+  supportsTextToVideo: boolean;
+  supportsImageToVideo: boolean;
+  supportsVideoEditing: boolean;
+  supportsMotionControl: boolean;
+  supportsAspectRatio: boolean;
+  supportedAspectRatios?: AspectRatio[];
+  defaultAspectRatio?: AspectRatio;
+  supportsResolution: boolean;
+  supportedResolutions?: VideoResolution[];
+  defaultResolution?: VideoResolution;
+  supportsDuration: boolean;
+  minDurationSeconds?: number;
+  maxDurationSeconds?: number;
+  defaultDurationSeconds?: number;
+  supportsFps: boolean;
+  supportsSeed: boolean;
+  supportsNegativePrompt: boolean;
+  supportsAudioGeneration: boolean;
+  supportsFirstLastFrame?: boolean;
+  supportsReferenceImages?: boolean;
+  supportsDraftMode?: boolean;
+  maxVideosPerCall: number;
 }

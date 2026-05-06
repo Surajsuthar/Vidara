@@ -116,8 +116,7 @@ function QualityBars({ tier }: { tier: QualityTier }) {
 function BatchGrid({ n }: { n: number }) {
   // Show up to 4 tiny squares in a 2×2 grid
   const cols = n <= 1 ? 1 : 2;
-  const rows = Math.ceil(n / cols);
-  const cells = Array.from({ length: n });
+  const cells = Array.from({ length: n }, (_, index) => `batch-cell-${index}`);
   return (
     <span
       className="inline-grid shrink-0"
@@ -127,9 +126,9 @@ function BatchGrid({ n }: { n: number }) {
       }}
       aria-hidden
     >
-      {cells.map((_, i) => (
+      {cells.map((cell) => (
         <span
-          key={i}
+          key={cell}
           className="w-1.5 h-1.5 rounded-[1px] bg-current opacity-70"
         />
       ))}
@@ -183,6 +182,7 @@ export const ASPECT_RATIO_OPTIONS: { value: AspectRatio; label: string }[] = [
   { value: "4:5", label: "Instagram Portrait" },
   { value: "5:4", label: "Large Format Landscape" },
   { value: "9:21", label: "Tall Banner" },
+  { value: "1:9", label: "Vertical Banner" },
   { value: "21:9", label: "Ultrawide" },
   { value: "2:1", label: "Panorama" },
   { value: "1:2", label: "Tall Portrait" },

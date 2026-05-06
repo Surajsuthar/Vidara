@@ -21,7 +21,7 @@ import ImageConfig, {
 import { Modeltab } from "./model-tab";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
-const DEFAULT_MODEL: ImageModel = "xai/grok-2-image";
+const DEFAULT_MODEL: ImageModel = "xai/grok-imagine-image";
 
 type GenerateApiSuccess = {
   success: true;
@@ -91,7 +91,7 @@ export default function ChatInterface() {
   const [value, setValue] = useState("");
   const [selectedModel, setSelectedModel] = useState<ImageModel>(DEFAULT_MODEL);
   const [showModels, setShowModels] = useState(false);
-  const [showAttach, setShowAttach] = useState(false);
+  const [_showAttach, setShowAttach] = useState(false);
   const [showImageConfig, setShowImageConfig] = useState(false);
   const [attachedImage, setAttachedImage] = useState<File | null>(null);
   const [imageConfig, setImageConfig] = useState<ImageConfigState>(() =>
@@ -278,8 +278,8 @@ export default function ChatInterface() {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = Math.min(el.scrollHeight, 180) + "px";
-  }, [value]);
+    el.style.height = `${Math.min(el.scrollHeight, 180)}px`;
+  });
 
   useEffect(() => {
     function handle(e: MouseEvent) {
@@ -461,8 +461,12 @@ export default function ChatInterface() {
                     key={`${generationResult.model}-${index}`}
                     className="overflow-hidden rounded-lg border border-white/10 bg-black/30"
                   >
+                    {/* biome-ignore lint/performance/noImgElement: Generated results may be data URLs or user-owned R2 URLs. */}
                     <img
-                      src={`data:${image.mimeType};base64,${image.base64}`}
+                      src={
+                        image.url ??
+                        `data:${image.mimeType};base64,${image.base64 ?? ""}`
+                      }
                       alt={`Generated result ${index + 1}`}
                       className="h-full w-full object-cover"
                     />

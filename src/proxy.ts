@@ -4,7 +4,12 @@ import { NextResponse } from "next/server";
 
 export const authRoute = ["/auth"];
 
-export const protectedRoute = ["/library", "/settings", "/generate"];
+export const protectedRoute = [
+  "/library",
+  "/settings",
+  "/generate",
+  "/explore",
+];
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;

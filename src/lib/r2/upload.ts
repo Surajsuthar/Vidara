@@ -1,4 +1,4 @@
-import { HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { R2_BUCKET, R2_PRIVATE_BUCKET, r2Client } from "./client";
 import { generateR2Key, getExtensionFromMime, getPublicUrl } from "./keys";
@@ -67,14 +67,14 @@ export async function uploadMultipart(
   opts: R2UploadOptions & { extension: string; contentLength?: number },
 ): Promise<R2UploadResult> {
   const mimeType = opts.mimeType ?? "video/mp4";
+  const bucket = opts.isPublic === false ? R2_PRIVATE_BUCKET : R2_BUCKET;
+
   const key = generateR2Key({
     folder: opts.folder,
     userId: opts.userId,
     generationId: opts.generationId,
     extension: opts.extension,
   });
-
-  const bucket = opts.isPublic === false ? R2_PRIVATE_BUCKET : R2_BUCKET;
 
   const upload = new Upload({
     client: r2Client,
@@ -86,8 +86,8 @@ export async function uploadMultipart(
       Metadata: buildMetadata(opts),
       ...(opts.contentLength ? { ContentLength: opts.contentLength } : {}),
     },
-    queueSize: 4, // 4 parallel uploads
-    partSize: 10 * 1024 * 1024, // 10MB parts
+    queueSize: 4, // 4 parallel part uploads
+    partSize: 10 * 1024 * 1024, // 10 MB parts
   });
 
   upload.on("httpUploadProgress", (progress) => {
@@ -96,16 +96,11 @@ export async function uploadMultipart(
 
   await upload.done();
 
-  // HEAD to get file size
-  const head = await r2Client.send(
-    new HeadObjectCommand({ Bucket: bucket, Key: key }),
-  );
-
   return {
     key,
     url: getPublicUrl(key),
-    bucket: bucket!,
-    sizeBytes: head.ContentLength ?? 0,
+    bucket,
+    sizeBytes: opts.contentLength ?? 0, // exact size unknown after multipart; use provided contentLength if available
     mimeType,
     uploadedAt: new Date(),
   };
@@ -118,14 +113,14 @@ async function uploadBuffer(
   buffer: Buffer,
   opts: R2UploadOptions & { mimeType: string; extension: string },
 ): Promise<R2UploadResult> {
+  const bucket = opts.isPublic === false ? R2_PRIVATE_BUCKET : R2_BUCKET;
+
   const key = generateR2Key({
     folder: opts.folder,
     userId: opts.userId,
     generationId: opts.generationId,
     extension: opts.extension,
   });
-
-  const bucket = opts.isPublic === false ? R2_PRIVATE_BUCKET : R2_BUCKET;
 
   await r2Client.send(
     new PutObjectCommand({
@@ -143,7 +138,7 @@ async function uploadBuffer(
   return {
     key,
     url: getPublicUrl(key),
-    bucket: bucket!,
+    bucket,
     sizeBytes: buffer.byteLength,
     mimeType: opts.mimeType,
     uploadedAt: new Date(),
@@ -151,7 +146,7 @@ async function uploadBuffer(
 }
 
 // ─────────────────────────────────────────────────────────────
-// Metadata attached to every R2 object (searchable in Cloudflare dashboard)
+// Metadata attached to every R2 object (searchable in dashboard)
 // ─────────────────────────────────────────────────────────────
 function buildMetadata(opts: R2UploadOptions): Record<string, string> {
   return {
