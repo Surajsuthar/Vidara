@@ -12,6 +12,7 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar";
+import { Button } from "../ui/button";
 import { NavSecondary } from "./nav-secondary";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -41,9 +42,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>Vidara</SidebarHeader>
       <SidebarContent>
         <NavMain />
-        <NavSecondary items={authNav} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter></SidebarFooter>
+      <SidebarFooter>
+        <NavSecondary items={authNav} />
+        {/*when to upgrade*/}
+        <Button variant={"outline"}>Upgrade</Button>
+      </SidebarFooter>
     </Sidebar>
   );
 }

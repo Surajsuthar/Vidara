@@ -559,3 +559,26 @@ export function getErrorMessage(error: unknown): string {
 export function isRetryableError(error: unknown): boolean {
   return isAppError(error) ? error.retryable : false;
 }
+
+export function getFriendlyErrorMessage(code?: string, fallback?: string) {
+  switch (code) {
+    case "RATE_LIMITED":
+      return "You're generating too fast. Please wait a moment and try again.";
+    case "AI_MODEL_UNAVAILABLE":
+      return "This AI model is currently unavailable. Please try another model.";
+    case "AI_INVALID_PROMPT":
+      return "Your prompt is invalid. Please revise it and try again.";
+    case "AI_CONTENT_FILTERED":
+      return "Your prompt was blocked by safety filters. Please change it and try again.";
+    case "AI_QUOTA_EXCEEDED":
+      return "The AI provider quota has been exceeded. Please try again later.";
+    case "IMAGE_GENERATION_FAILED":
+      return "Image generation failed. Please try again.";
+    case "VALIDATION":
+      return "Your request is invalid. Please review the prompt and settings.";
+    case "NOT_FOUND":
+      return "The requested generation job could not be found.";
+    default:
+      return fallback ?? "Something went wrong. Please try again.";
+  }
+}

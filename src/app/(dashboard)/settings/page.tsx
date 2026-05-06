@@ -11,8 +11,11 @@ import {
   LogOut,
   Monitor,
   Moon,
+  Palette,
+  Shield,
   Sun,
   Trash2,
+  UserRound,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -230,19 +233,100 @@ export default function SettingsPage() {
   /* ────────────────────────────────── render ── */
 
   return (
-    <section className="max-w-2xl mx-auto py-6 px-2 sm:px-4">
-      {/* Page heading */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          Manage your account settings and preferences.
-        </p>
+    <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-1 py-2 sm:px-2 lg:py-4">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="flex min-h-34 flex-col justify-end rounded-xl border bg-card px-5 py-5 shadow-sm sm:px-6">
+          <p className="text-xs font-medium uppercase text-muted-foreground">
+            Workspace
+          </p>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+            Settings
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+            Manage identity, connected accounts, sessions, and local display
+            preferences for Vidara.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4 rounded-xl border bg-card px-5 py-5 shadow-sm">
+          {isPending ? (
+            <Skeleton className="h-14 w-14 rounded-full" />
+          ) : (
+            <Avatar className="h-14 w-14 ring-2 ring-border">
+              <AvatarImage src={user?.image ?? ""} alt={user?.name ?? "User"} />
+              <AvatarFallback className="text-base font-semibold">
+                {getInitials(user?.name)}
+              </AvatarFallback>
+            </Avatar>
+          )}
+
+          <div className="min-w-0">
+            {isPending ? (
+              <>
+                <Skeleton className="h-4 w-36" />
+                <Skeleton className="mt-2 h-3 w-48" />
+              </>
+            ) : (
+              <>
+                <p className="truncate text-sm font-medium">
+                  {user?.name ?? "Account"}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {user?.email}
+                </p>
+              </>
+            )}
+            <p className="mt-2 text-xs text-muted-foreground">
+              {accounts.length > 0
+                ? `${accounts.length} connected provider${accounts.length === 1 ? "" : "s"}`
+                : "Account access and security"}
+            </p>
+          </div>
+        </div>
       </div>
 
-      <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs
+        defaultValue="profile"
+        orientation="vertical"
+        className="grid items-start gap-5 lg:grid-cols-[220px_minmax(0,1fr)]"
+      >
+        <TabsList
+          variant="line"
+          className="sticky top-16 hidden w-full rounded-xl border bg-card p-2 shadow-sm lg:flex"
+        >
+          <TabsTrigger value="profile" className="gap-2 px-3 py-2">
+            <UserRound className="h-4 w-4" />
+            Profile
+          </TabsTrigger>
+          <TabsTrigger value="appearance" className="gap-2 px-3 py-2">
+            <Palette className="h-4 w-4" />
+            Appearance
+          </TabsTrigger>
+          <TabsTrigger
+            value="accounts"
+            className="gap-2 px-3 py-2"
+            onClick={() => {
+              if (!accountsLoaded) loadAccounts();
+            }}
+          >
+            <Link2 className="h-4 w-4" />
+            Accounts
+          </TabsTrigger>
+          <TabsTrigger
+            value="security"
+            className="gap-2 px-3 py-2"
+            onClick={() => {
+              if (!sessionsLoaded) loadSessions();
+            }}
+          >
+            <Shield className="h-4 w-4" />
+            Security
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsList className="grid w-full grid-cols-4 lg:hidden">
           <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="appearance">Appearance</TabsTrigger>
+          <TabsTrigger value="appearance">Theme</TabsTrigger>
           <TabsTrigger
             value="accounts"
             onClick={() => {
@@ -262,8 +346,8 @@ export default function SettingsPage() {
         </TabsList>
 
         {/* ══════════════════════════════ PROFILE ══ */}
-        <TabsContent value="profile" className="space-y-4">
-          <Card>
+        <TabsContent value="profile" className="mt-0 space-y-4">
+          <Card className="rounded-xl shadow-sm">
             <CardHeader>
               <CardTitle>Profile</CardTitle>
               <CardDescription>
@@ -273,7 +357,7 @@ export default function SettingsPage() {
 
             <CardContent className="space-y-6">
               {/* Avatar row */}
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 {isPending ? (
                   <Skeleton className="h-16 w-16 rounded-full" />
                 ) : (
@@ -311,38 +395,40 @@ export default function SettingsPage() {
               <Separator />
 
               {/* Display name */}
-              <div className="space-y-2">
-                <Label htmlFor="display-name">Display Name</Label>
-                <Input
-                  id="display-name"
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    setProfileMsg(null);
-                  }}
-                  placeholder="Your name"
-                  disabled={isPending}
-                  className="max-w-sm"
-                />
-              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="display-name">Display Name</Label>
+                  <Input
+                    id="display-name"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      setProfileMsg(null);
+                    }}
+                    placeholder="Your name"
+                    disabled={isPending}
+                  />
+                </div>
 
-              {/* Email (read-only) */}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  value={user?.email ?? ""}
-                  readOnly
-                  disabled
-                  className="max-w-sm opacity-60 cursor-not-allowed"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Email is managed through your connected social provider.
-                </p>
+                {/* Email (read-only) */}
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    value={user?.email ?? ""}
+                    readOnly
+                    disabled
+                    className="opacity-60 cursor-not-allowed"
+                  />
+                </div>
               </div>
+              <p className="text-xs text-muted-foreground">
+                Email and avatar are managed through your connected social
+                provider.
+              </p>
             </CardContent>
 
-            <CardFooter className="flex items-center justify-between gap-3 border-t pt-6">
+            <CardFooter className="flex flex-col items-stretch justify-between gap-3 border-t pt-6 sm:flex-row sm:items-center">
               {profileMsg ? (
                 <p
                   className={cn(
@@ -355,7 +441,9 @@ export default function SettingsPage() {
                   {profileMsg.text}
                 </p>
               ) : (
-                <span />
+                <span className="text-sm text-muted-foreground">
+                  Changes apply to your Vidara profile.
+                </span>
               )}
               <Button
                 size="sm"
@@ -367,15 +455,15 @@ export default function SettingsPage() {
                   name.trim() === (session?.user?.name ?? "")
                 }
               >
-                {isSavingProfile ? "Saving…" : "Save Changes"}
+                {isSavingProfile ? "Saving..." : "Save Changes"}
               </Button>
             </CardFooter>
           </Card>
         </TabsContent>
 
         {/* ══════════════════════════ APPEARANCE ══ */}
-        <TabsContent value="appearance" className="space-y-4">
-          <Card>
+        <TabsContent value="appearance" className="mt-0 space-y-4">
+          <Card className="rounded-xl shadow-sm">
             <CardHeader>
               <CardTitle>Appearance</CardTitle>
               <CardDescription>
@@ -385,35 +473,43 @@ export default function SettingsPage() {
 
             <CardContent className="space-y-4">
               <Label>Theme</Label>
-              <div className="flex flex-wrap gap-3">
+              <div className="grid gap-3 sm:grid-cols-3">
                 {THEMES.map(({ id, label, Icon }) => (
                   <button
                     key={id}
                     type="button"
                     onClick={() => setTheme(id)}
                     className={cn(
-                      "flex flex-col items-center justify-center gap-2 rounded-xl border-2 px-8 py-5 text-sm font-medium transition-all hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      "flex min-h-24 items-center gap-3 rounded-xl border px-4 py-4 text-left text-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                       theme === id
-                        ? "border-primary bg-accent text-accent-foreground"
-                        : "border-border bg-card text-muted-foreground",
+                        ? "border-primary bg-primary/5 text-foreground"
+                        : "border-border bg-background text-muted-foreground",
                     )}
                   >
-                    <Icon className="h-5 w-5" />
-                    {label}
+                    <span className="flex h-10 w-10 items-center justify-center rounded-lg border bg-card">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <span>
+                      <span className="block font-medium">{label}</span>
+                      <span className="mt-1 block text-xs text-muted-foreground">
+                        {id === "system"
+                          ? "Use device setting"
+                          : `${label} interface`}
+                      </span>
+                    </span>
                   </button>
                 ))}
               </div>
               <p className="text-xs text-muted-foreground">
-                &ldquo;System&rdquo; automatically matches your operating system
-                preference.
+                System automatically matches your operating system preference.
               </p>
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* ═══════════════════════════ ACCOUNTS ══ */}
-        <TabsContent value="accounts" className="space-y-4">
-          <Card>
+        <TabsContent value="accounts" className="mt-0 space-y-4">
+          <Card className="rounded-xl shadow-sm">
             <CardHeader>
               <CardTitle>Connected Accounts</CardTitle>
               <CardDescription>
@@ -430,22 +526,21 @@ export default function SettingsPage() {
                 return (
                   <div
                     key={id}
-                    className="flex items-center justify-between py-4 first:pt-0 last:pb-0"
+                    className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    {/* Left */}
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full border bg-muted shrink-0">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border bg-muted">
                         <Icon className="h-4 w-4" />
                       </div>
                       <div>
                         <p className="text-sm font-medium leading-none">
                           {label}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="mt-1 text-xs text-muted-foreground">
                           {isLoadingAccounts ? (
-                            <Skeleton className="h-3 w-28 inline-block" />
+                            <Skeleton className="inline-block h-3 w-28" />
                           ) : isConnected ? (
-                            <span className="text-primary font-medium">
+                            <span className="font-medium text-primary">
                               Connected
                             </span>
                           ) : (
@@ -455,7 +550,6 @@ export default function SettingsPage() {
                       </div>
                     </div>
 
-                    {/* Right */}
                     {isLoadingAccounts ? (
                       <Skeleton className="h-8 w-24 shrink-0" />
                     ) : isConnected ? (
@@ -464,10 +558,10 @@ export default function SettingsPage() {
                         size="sm"
                         disabled={isUnlinking}
                         onClick={() => handleUnlinkAccount(id)}
-                        className="gap-1.5 text-destructive hover:text-destructive shrink-0"
+                        className="gap-1.5 text-destructive hover:text-destructive sm:shrink-0"
                       >
                         <Link2Off className="h-3.5 w-3.5" />
-                        {isUnlinking ? "Removing…" : "Disconnect"}
+                        {isUnlinking ? "Removing..." : "Disconnect"}
                       </Button>
                     ) : (
                       <Button
@@ -475,10 +569,10 @@ export default function SettingsPage() {
                         size="sm"
                         disabled={isLinking}
                         onClick={() => handleLinkAccount(id)}
-                        className="gap-1.5 shrink-0"
+                        className="gap-1.5 sm:shrink-0"
                       >
                         <Link2 className="h-3.5 w-3.5" />
-                        {isLinking ? "Connecting…" : "Connect"}
+                        {isLinking ? "Connecting..." : "Connect"}
                       </Button>
                     )}
                   </div>
@@ -489,9 +583,9 @@ export default function SettingsPage() {
         </TabsContent>
 
         {/* ════════════════════════════ SECURITY ══ */}
-        <TabsContent value="security" className="space-y-4">
+        <TabsContent value="security" className="mt-0 space-y-4">
           {/* Active sessions */}
-          <Card>
+          <Card className="rounded-xl shadow-sm">
             <CardHeader>
               <CardTitle>Active Sessions</CardTitle>
               <CardDescription>
@@ -515,7 +609,7 @@ export default function SettingsPage() {
                 ))
               ) : sessions.length === 0 ? (
                 <p className="py-6 text-center text-sm text-muted-foreground">
-                  No session data found. Click the Security tab to reload.
+                  No session data found. Open the Security tab to load sessions.
                 </p>
               ) : (
                 sessions.map((s) => {
@@ -526,10 +620,10 @@ export default function SettingsPage() {
                   return (
                     <div
                       key={s.id}
-                      className="flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
+                      className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-start sm:justify-between"
                     >
-                      <div className="space-y-0.5 min-w-0">
-                        <p className="text-sm font-medium flex flex-wrap items-center gap-2">
+                      <div className="min-w-0 space-y-0.5">
+                        <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
                           {device}
                           {isCurrent && (
                             <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-normal text-primary ring-1 ring-primary/20">
@@ -554,10 +648,10 @@ export default function SettingsPage() {
                           size="sm"
                           disabled={isRevoking}
                           onClick={() => handleRevokeSession(s.token)}
-                          className="gap-1.5 text-destructive hover:text-destructive shrink-0"
+                          className="gap-1.5 text-destructive hover:text-destructive sm:shrink-0"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                          {isRevoking ? "Revoking…" : "Revoke"}
+                          {isRevoking ? "Revoking..." : "Revoke"}
                         </Button>
                       )}
                     </div>
@@ -577,28 +671,26 @@ export default function SettingsPage() {
                 >
                   <LogOut className="h-3.5 w-3.5" />
                   {isRevokingAll
-                    ? "Signing out…"
+                    ? "Signing out..."
                     : `Sign out of ${otherSessions.length} other session${otherSessions.length > 1 ? "s" : ""}`}
                 </Button>
               </CardFooter>
             )}
           </Card>
 
-          {/* Danger Zone */}
-          <Card className="border-destructive/30">
+          <Card className="rounded-xl border-destructive/30 shadow-sm">
             <CardHeader>
               <CardTitle className="text-destructive">Danger Zone</CardTitle>
               <CardDescription>
-                Irreversible actions — please proceed carefully.
+                Irreversible actions that affect account access.
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="space-y-4">
-              {/* Sign out */}
-              <div className="flex items-center justify-between gap-4">
+            <CardContent>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm font-medium">Sign out of Vidara</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="mt-0.5 text-xs text-muted-foreground">
                     Ends your current session on this device.
                   </p>
                 </div>
@@ -606,7 +698,7 @@ export default function SettingsPage() {
                   variant="destructive"
                   size="sm"
                   onClick={handleSignOut}
-                  className="gap-1.5 shrink-0"
+                  className="gap-1.5 sm:shrink-0"
                 >
                   <LogOut className="h-3.5 w-3.5" />
                   Sign Out
