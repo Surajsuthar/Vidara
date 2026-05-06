@@ -1,6 +1,7 @@
 import { openai } from "@ai-sdk/openai";
 import { generateImage } from "ai";
 import { getSize } from "@/lib/utils";
+import { getModelMeta } from "../factory";
 import type { ImageGenOptions, ImageGenResult, JSONObject } from "../types";
 
 const qualityMap: Record<string, string> = {
@@ -18,18 +19,19 @@ export async function generateOpenAI(
   const start = Date.now();
 
   const modelId = opts.model.replace("openai/", "");
+  const meta = getModelMeta(opts.model);
 
   // dall-e-3 & dall-e-2 use size strings, gpt-image-* use quality
   const isLegacy = modelId === "dall-e-2" || modelId === "dall-e-3";
 
-  const size = opts.size ? getSize(opts.size) : undefined;
+  const size = meta.supportsSize && opts.size ? getSize(opts.size) : undefined;
 
   const providerOptions: JSONObject = {};
 
-  if (!isLegacy && opts.quality) {
+  if (!isLegacy && opts.quality && meta.supportsQuality) {
     providerOptions.quality = qualityMap[opts.quality] ?? "medium";
   }
-  if (modelId === "dall-e-3" && opts.quality === "hd") {
+  if (modelId === "dall-e-3" && opts.quality === "hd" && meta.supportsQuality) {
     providerOptions.quality = "hd";
   }
   if (opts.outputFormat) {
@@ -44,7 +46,9 @@ export async function generateOpenAI(
     prompt: opts.prompt,
     n: opts.n ?? 1,
     ...(size ? { size } : {}),
-    ...(opts.seed !== undefined ? { seed: opts.seed } : {}),
+    ...(opts.seed !== undefined && meta.supportsSeed
+      ? { seed: opts.seed }
+      : {}),
     providerOptions: { openai: providerOptions },
   });
 

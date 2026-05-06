@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useMutationData } from "@/hooks/use-mutate-data";
 import { useQueryData } from "@/hooks/use-query-data";
+import type { StudioMode } from "@/lib/studio-config";
 import ImageConfig, {
   getDefaultImageConfig,
   type ImageConfigState,
@@ -22,6 +23,10 @@ import { Modeltab } from "./model-tab";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 const DEFAULT_MODEL: ImageModel = "xai/grok-imagine-image";
+
+type ChatInterfaceProps = {
+  studioMode?: StudioMode;
+};
 
 type GenerateApiSuccess = {
   success: true;
@@ -87,7 +92,9 @@ function getFriendlyErrorMessage(code?: string, fallback?: string) {
   }
 }
 
-export default function ChatInterface() {
+export default function ChatInterface({
+  studioMode = "generate-image",
+}: ChatInterfaceProps) {
   const [value, setValue] = useState("");
   const [selectedModel, setSelectedModel] = useState<ImageModel>(DEFAULT_MODEL);
   const [showModels, setShowModels] = useState(false);
@@ -271,6 +278,12 @@ export default function ChatInterface() {
 
   const handleGenerate = () => {
     if (!generationQuery.prompt.trim()) return;
+
+    if (studioMode === "edit-image") {
+      toast.info("Image editing is not wired yet.");
+      return;
+    }
+
     generateImage(generationQuery);
   };
 
@@ -424,7 +437,9 @@ export default function ChatInterface() {
                   ? "Queueing..."
                   : isPollingGenerationStatus
                     ? "Processing..."
-                    : "Generate"}
+                    : studioMode === "edit-image"
+                      ? "Edit"
+                      : "Generate"}
               </Button>
             </div>
           </div>

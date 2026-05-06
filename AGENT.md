@@ -70,7 +70,7 @@ The application uses App Router route groups:
 3. `POST /api/generate` in `src/app/api/generate/route.ts` validates auth, rate limits, validates the payload with Zod, creates a generation record, writes a queued status, and enqueues a BullMQ job.
 4. `GenerationQueue` enqueues a `generate-image` job on the `generation` queue.
 5. `worker/index.ts` starts `GenerationWorker` and `EmailWorker`.
-6. `GenerationWorker` marks the job as processing, calls `generate()` from `ai/generator.ts`, persists generated images to R2 and Postgres, then updates Redis job status.
+6. `GenerationWorker` marks the job as processing, calls `generateImage()` from `ai/index.ts`, persists generated images to R2 and Postgres, then updates Redis job status.
 7. The client polls `GET /api/generate?requestId=...` until the job is completed or failed.
 8. Completed results are displayed in `ChatInterface`.
 
@@ -82,10 +82,10 @@ The `ai/` folder is provider-neutral at the top level:
 - `ai/image-models.ts`: `MODEL_REGISTRY`, which describes image model capabilities such as provider, supported sizes, aspect ratios, quality, seeds, and batch limits.
 - `ai/video-models.ts`: `VIDEO_MODEL_REGISTRY`, which describes video model capabilities such as provider, text-to-video/image-to-video support, aspect ratios, resolutions, durations, fps, audio, and motion controls.
 - `ai/factory.ts`: compatibility exports for image and video model registries and metadata lookup helpers.
-- `ai/generator.ts`: validates options against model metadata and dispatches to the correct provider adapter.
+- `ai/index.ts`: public AI facade with `generate`, `generateImage`, `generateVideo`, prompt sanitization, image option validation, and provider dispatch.
 - `ai/providers/*.ts`: provider-specific generation implementations.
 
-To add a new model, update the model union in `ai/types.ts`, add image metadata in `ai/image-models.ts` or video metadata in `ai/video-models.ts`, and make sure `ai/generator.ts` can route it to a provider adapter.
+To add a new model, update the model union in `ai/types.ts`, add image metadata in `ai/image-models.ts` or video metadata in `ai/video-models.ts`, and make sure `ai/index.ts` can route it to a provider adapter.
 
 ## Data Model
 
@@ -169,10 +169,11 @@ Required environment variables are validated in `src/utils/env.ts`. The project 
 
 ## Common Change Locations
 
-- Add or modify image models: `ai/types.ts`, `ai/factory.ts`, `ai/providers/*`, `ai/generator.ts`.
+- Add or modify image models: `ai/types.ts`, `ai/image-models.ts`, `ai/providers/*`, `ai/index.ts`.
 - Change generation API behavior: `src/app/api/generate/route.ts`.
 - Change background generation processing: `src/jobs/generation/GenerationWorker.ts` and `src/jobs/generation/persistence.ts`.
 - Change generation UI: `src/components/chat-interface.tsx`, `src/components/model-config.tsx`, `src/components/model-tab.tsx`.
+- Change studio modes: `src/lib/studio-config.ts`; selected mode is URL-driven through `/generate?studio=...`.
 - Change schema: `drizzle/schema/index.ts`, then generate a migration.
 - Change auth behavior: `src/lib/auth.ts`, `src/lib/auth-service.ts`, `src/app/api/auth/[...all]/route.ts`.
 - Change dashboard navigation/shell: `src/app/(dashboard)/layout.tsx` and `src/components/sidebar/`.

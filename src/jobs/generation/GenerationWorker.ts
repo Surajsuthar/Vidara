@@ -1,6 +1,7 @@
 import type { Job } from "bullmq";
-import { generate } from "@/ai/generator";
 import type { ImageGenOptions, ImageGenResult } from "@/ai/types";
+import { sanitizePrompt } from "@/lib/prompt-sanitizer";
+import { generateImage } from "../../../ai";
 import { BaseWorker } from "../../../worker/queue/BaseWorker";
 import {
   markGenerationFailed,
@@ -51,7 +52,13 @@ export class GenerationWorker extends BaseWorker<
   ): Promise<GenerationJobResult> {
     const { requestId, userId, prompt, options } = job.data;
 
-    if (!prompt.trim()) {
+    const promptSafety = sanitizePrompt(prompt);
+
+    if (!promptSafety.ok) {
+      this.failPermanently(promptSafety.reason);
+    }
+
+    if (!promptSafety.prompt) {
       this.failPermanently("Prompt is required for generation jobs.");
     }
 
@@ -70,9 +77,9 @@ export class GenerationWorker extends BaseWorker<
 
     await job.updateProgress(10);
 
-    const result = await generate({
+    const result = await generateImage({
       ...options,
-      prompt,
+      prompt: promptSafety.prompt,
     });
 
     await job.updateProgress(80);
@@ -82,7 +89,7 @@ export class GenerationWorker extends BaseWorker<
       userId,
       options: {
         ...options,
-        prompt,
+        prompt: promptSafety.prompt,
       },
       result,
     });

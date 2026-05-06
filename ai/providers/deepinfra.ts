@@ -1,5 +1,6 @@
 import { deepinfra } from "@ai-sdk/deepinfra";
 import { generateImage } from "ai";
+import { getModelMeta } from "../factory";
 import type { ImageGenOptions, ImageGenResult } from "../types";
 
 const DEEPINFRA_MODEL_MAP: Record<string, string> = {
@@ -19,16 +20,21 @@ export async function generateDeepInfra(
   const deepinfraModelId = DEEPINFRA_MODEL_MAP[opts.model];
   if (!deepinfraModelId)
     throw new Error(`Unknown deepinfra model: ${opts.model}`);
+  const meta = getModelMeta(opts.model);
 
   const { images, warnings } = await generateImage({
     model: deepinfra.image(deepinfraModelId),
     prompt: opts.prompt,
     n: opts.n ?? 1,
-    aspectRatio: opts.aspectRatio ?? "1:1",
-    ...(opts.seed !== undefined ? { seed: opts.seed } : {}),
+    ...(meta.supportsAspectRatio
+      ? { aspectRatio: opts.aspectRatio ?? meta.defaultAspectRatio ?? "1:1" }
+      : {}),
+    ...(opts.seed !== undefined && meta.supportsSeed
+      ? { seed: opts.seed }
+      : {}),
     providerOptions: {
       deepinfra: {
-        ...(opts.negativePrompt
+        ...(opts.negativePrompt && meta.supportsNegativePrompt
           ? { negative_prompt: opts.negativePrompt }
           : {}),
         ...(opts.providerExtras ?? {}),

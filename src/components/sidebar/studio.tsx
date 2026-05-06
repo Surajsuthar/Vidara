@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, ChevronsUpDown, ImageIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,19 +13,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useGenerateContext } from "@/context/generate-context";
-import { STUDIO_ITEMS } from "@/lib/studio-config";
+import { getStudioItemByMode, STUDIO_ITEMS } from "@/lib/studio-config";
 
 export function Studio() {
   const router = useRouter();
-  const { resource, setResource } = useGenerateContext();
-
-  const selected = STUDIO_ITEMS.find(
-    (item) => `${item.slug[0]}/${item.slug[1]}` === resource,
-  );
+  const searchParams = useSearchParams();
+  const selected = getStudioItemByMode(searchParams.get("studio"));
 
   const handleSelect = (item: (typeof STUDIO_ITEMS)[number]) => {
-    setResource(`${item.slug[0]}/${item.slug[1]}`);
     router.push(item.href);
   };
 
@@ -59,7 +54,7 @@ export function Studio() {
             align="start"
           >
             {STUDIO_ITEMS.map((item) => {
-              const isActive = `${item.slug[0]}/${item.slug[1]}` === resource;
+              const isActive = item.key === selected.key;
               return (
                 <DropdownMenuItem
                   key={item.label}

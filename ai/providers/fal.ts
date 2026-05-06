@@ -1,5 +1,6 @@
 import { fal } from "@ai-sdk/fal";
 import { generateImage } from "ai";
+import { getModelMeta } from "../factory";
 import type { ImageGenOptions, ImageGenResult, JSONObject } from "../types";
 
 const FAL_MODEL_MAP: Record<string, string> = {
@@ -19,9 +20,12 @@ export async function generateFal(
   const start = Date.now();
   const falModelId = FAL_MODEL_MAP[opts.model];
   if (!falModelId) throw new Error(`Unknown fal model: ${opts.model}`);
+  const meta = getModelMeta(opts.model);
 
   const providerOptions: JSONObject = {
-    ...(opts.negativePrompt ? { negative_prompt: opts.negativePrompt } : {}),
+    ...(opts.negativePrompt && meta.supportsNegativePrompt
+      ? { negative_prompt: opts.negativePrompt }
+      : {}),
     ...(opts.providerExtras ?? {}),
   };
 
@@ -29,8 +33,12 @@ export async function generateFal(
     model: fal.image(falModelId),
     prompt: opts.prompt,
     n: opts.n ?? 1,
-    aspectRatio: opts.aspectRatio ?? "1:1",
-    ...(opts.seed !== undefined ? { seed: opts.seed } : {}),
+    ...(meta.supportsAspectRatio
+      ? { aspectRatio: opts.aspectRatio ?? meta.defaultAspectRatio ?? "1:1" }
+      : {}),
+    ...(opts.seed !== undefined && meta.supportsSeed
+      ? { seed: opts.seed }
+      : {}),
     providerOptions: { fal: providerOptions },
   });
 

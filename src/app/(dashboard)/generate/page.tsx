@@ -1,10 +1,15 @@
 import ChatInterface from "@/components/chat-interface";
-import { STUDIO_ITEMS } from "@/lib/studio-config";
+import { getStudioItemByMode } from "@/lib/studio-config";
 
-export function generateStaticParams() {
-  return STUDIO_ITEMS.map((item) => ({ slug: item.slug }));
-}
+type StudioPageProps = {
+  searchParams?: Promise<{
+    studio?: string;
+  }>;
+};
 
-export default async function StudioPage() {
-  return <ChatInterface />;
+export default async function StudioPage({ searchParams }: StudioPageProps) {
+  const params = await searchParams;
+  const studioItem = getStudioItemByMode(params?.studio);
+
+  return <ChatInterface studioMode={studioItem.key} />;
 }

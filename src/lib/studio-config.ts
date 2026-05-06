@@ -3,6 +3,7 @@ import { ImageIcon, Wand2 } from "lucide-react";
 import type { Metadata } from "next";
 
 export type StudioItem = {
+  key: StudioMode;
   label: string;
   href: string;
   description: string;
@@ -10,17 +11,21 @@ export type StudioItem = {
   icon: LucideIcon;
 };
 
+export type StudioMode = "generate-image" | "edit-image";
+
 export const STUDIO_ITEMS = [
   {
+    key: "generate-image",
     label: "Image Generate",
-    href: "/generate",
+    href: "/generate?studio=generate-image",
     description: "Generate stunning images from text prompts using AI",
     slug: ["generate", "image"],
     icon: ImageIcon,
   },
   {
+    key: "edit-image",
     label: "Edit Images",
-    href: "/generate",
+    href: "/generate?studio=edit-image",
     description: "Edit and enhance your images with AI-powered tools",
     slug: ["edit", "image"],
     icon: Wand2,
@@ -34,6 +39,7 @@ export const STUDIO_ITEMS = [
 ] as const satisfies StudioItem[];
 
 export type StudioHref = (typeof STUDIO_ITEMS)[number]["href"];
+export const DEFAULT_STUDIO_MODE: StudioMode = "generate-image";
 
 type PageMeta = {
   title: string;
@@ -103,6 +109,14 @@ export function buildStudioMetadata(slugKey: string): Metadata {
 
 export function getStudioItemByPath(pathname: string): StudioItem | undefined {
   return STUDIO_ITEMS.find((item) => item.href === pathname);
+}
+
+export function getStudioItemByMode(mode?: string | null): StudioItem {
+  return (
+    STUDIO_ITEMS.find((item) => item.key === mode) ??
+    STUDIO_ITEMS.find((item) => item.key === DEFAULT_STUDIO_MODE) ??
+    STUDIO_ITEMS[0]
+  );
 }
 
 export function isValidStudioSlug(slug: string[]): boolean {

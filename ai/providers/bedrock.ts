@@ -1,6 +1,7 @@
 import { bedrock } from "@ai-sdk/amazon-bedrock";
 import { generateImage } from "ai";
 import { getSize } from "@/lib/utils";
+import { getModelMeta } from "../factory";
 import type { ImageGenOptions, ImageGenResult } from "../types";
 
 export enum ImageStyle {
@@ -20,18 +21,24 @@ export async function generateBedrock(
   opts: ImageGenOptions,
 ): Promise<ImageGenResult> {
   const start = Date.now();
+  const meta = getModelMeta(opts.model);
 
-  const size = opts.size ? getSize(opts.size) : "1024x1024";
+  const size =
+    opts.size && meta.supportsSize ? getSize(opts.size) : "1024x1024";
 
   const { images, warnings } = await generateImage({
     model: bedrock.image("amazon.nova-canvas-v1:0"),
     prompt: opts.prompt,
     n: opts.n ?? 1,
     size,
-    ...(opts.seed !== undefined ? { seed: opts.seed } : {}),
+    ...(opts.seed !== undefined && meta.supportsSeed
+      ? { seed: opts.seed }
+      : {}),
     providerOptions: {
       bedrock: {
-        ...(opts.negativePrompt ? { negativeText: opts.negativePrompt } : {}),
+        ...(opts.negativePrompt && meta.supportsNegativePrompt
+          ? { negativeText: opts.negativePrompt }
+          : {}),
         ...(opts.providerExtras ?? {}),
       },
     },

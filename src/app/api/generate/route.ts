@@ -14,6 +14,7 @@ import {
 } from "@/jobs/generation/status-store";
 import { getMyUser } from "@/lib/auth-service";
 import { Errors, wrapError } from "@/lib/error";
+import { sanitizePrompt } from "@/lib/prompt-sanitizer";
 import { getClientInfo, rateLimit } from "@/lib/utils";
 
 const generateRequestSchema = z.object({
@@ -155,7 +156,15 @@ export async function POST(req: Request) {
       model: parsed.data.model as ImageModel,
     };
 
-    if (!payload.prompt.trim()) {
+    const promptSafety = sanitizePrompt(payload.prompt);
+
+    if (!promptSafety.ok) {
+      throw Errors.ai.contentFiltered();
+    }
+
+    payload.prompt = promptSafety.prompt;
+
+    if (!payload.prompt) {
       throw Errors.ai.invalidPrompt("Prompt is required.");
     }
 

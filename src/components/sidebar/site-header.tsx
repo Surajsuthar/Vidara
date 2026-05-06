@@ -2,7 +2,7 @@
 
 import { Github } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -10,24 +10,22 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useGenerateContext } from "@/context/generate-context";
 import { useGithub } from "@/hooks/use-github-count";
 import { useSession } from "@/lib/auth-client";
-import { STUDIO_ITEMS } from "@/lib/studio-config";
+import { getStudioItemByMode } from "@/lib/studio-config";
 import { NavUser } from "./nav-user";
 
 export function SiteHeader() {
   const { stargazers_count } = useGithub();
   const { data: session, isPending } = useSession();
-  const { resource } = useGenerateContext();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const studioItem = STUDIO_ITEMS.find(
-    (item) => `${item.slug[0]}/${item.slug[1]}` === resource,
-  );
-  const pageTitle = studioItem?.label ?? pathname.split("/").pop();
+  const pageTitle =
+    pathname === "/generate"
+      ? getStudioItemByMode(searchParams.get("studio")).label
+      : pathname.split("/").pop();
 
-  // Build breadcrumb from context resource
   const user = session?.user
     ? {
         name: session.user.name ?? "User",

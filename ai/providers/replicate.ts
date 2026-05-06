@@ -1,5 +1,7 @@
 import { replicate } from "@ai-sdk/replicate";
 import { generateImage } from "ai";
+import { getSize } from "@/lib/utils";
+import { getModelMeta } from "../factory";
 import type { ImageGenOptions, ImageGenResult } from "../types";
 
 const REPLICATE_MODEL_MAP: Record<string, string> = {
@@ -14,13 +16,20 @@ export async function generateReplicate(
   const replicateModelId = REPLICATE_MODEL_MAP[opts.model];
   if (!replicateModelId)
     throw new Error(`Unknown replicate model: ${opts.model}`);
+  const meta = getModelMeta(opts.model);
+  const size = meta.supportsSize && opts.size ? getSize(opts.size) : undefined;
 
   const { images, warnings } = await generateImage({
     model: replicate.image(replicateModelId),
     prompt: opts.prompt,
     n: opts.n ?? 1,
-    aspectRatio: opts.aspectRatio ?? "1:1",
-    ...(opts.seed !== undefined ? { seed: opts.seed } : {}),
+    ...(meta.supportsAspectRatio
+      ? { aspectRatio: opts.aspectRatio ?? meta.defaultAspectRatio ?? "1:1" }
+      : {}),
+    ...(size ? { size } : {}),
+    ...(opts.seed !== undefined && meta.supportsSeed
+      ? { seed: opts.seed }
+      : {}),
     providerOptions: { replicate: opts.providerExtras ?? {} },
   });
 

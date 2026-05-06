@@ -1,5 +1,6 @@
 import { xai } from "@ai-sdk/xai";
 import { generateImage } from "ai";
+import { getModelMeta } from "../factory";
 import type { ImageGenOptions, ImageGenResult } from "../types";
 
 export async function generateXai(
@@ -7,13 +8,18 @@ export async function generateXai(
 ): Promise<ImageGenResult> {
   const start = Date.now();
   const modelId = opts.model.replace("xai/", "");
+  const meta = getModelMeta(opts.model);
 
   const { images, warnings } = await generateImage({
     model: xai.image(modelId),
     prompt: opts.prompt,
     n: opts.n ?? 1,
-    aspectRatio: opts.aspectRatio,
-    ...(opts.seed !== undefined ? { seed: opts.seed } : {}),
+    ...(meta.supportsAspectRatio
+      ? { aspectRatio: opts.aspectRatio ?? meta.defaultAspectRatio }
+      : {}),
+    ...(opts.seed !== undefined && meta.supportsSeed
+      ? { seed: opts.seed }
+      : {}),
     providerOptions: { xai: opts.providerExtras ?? {} },
   });
 
