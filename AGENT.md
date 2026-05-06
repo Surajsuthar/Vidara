@@ -69,7 +69,7 @@ The application uses App Router route groups:
 2. The component builds an `ImageGenOptions` payload from the selected model and model-specific config.
 3. `POST /api/generate` in `src/app/api/generate/route.ts` validates auth, rate limits, validates the payload with Zod, creates a generation record, writes a queued status, and enqueues a BullMQ job.
 4. `GenerationQueue` enqueues a `generate-image` job on the `generation` queue.
-5. `worker/index.ts` starts `WorkerManager`, which starts `GenerationWorker` and `EmailWorker`.
+5. `worker/index.ts` starts `GenerationWorker` and `EmailWorker`.
 6. `GenerationWorker` marks the job as processing, calls `generate()` from `ai/generator.ts`, persists generated images to R2 and Postgres, then updates Redis job status.
 7. The client polls `GET /api/generate?requestId=...` until the job is completed or failed.
 8. Completed results are displayed in `ChatInterface`.
@@ -109,13 +109,12 @@ Reusable queue primitives live in `worker/queue/`:
 - `RedisConnection.ts`: shared Redis connection for BullMQ and generation status storage.
 - `BaseQueue.ts`: typed BullMQ queue wrapper with common defaults.
 - `BaseWorker.ts`: typed BullMQ worker wrapper with common lifecycle logging and permanent-failure support.
-- `WorkerManager.ts`: starts all registered workers.
 
 Job-specific code lives in `src/jobs/`:
 
 - `src/jobs/generation/GenerationQueue.ts`: enqueues image generation jobs.
 - `src/jobs/generation/GenerationWorker.ts`: runs model generation, persistence, and status updates.
-- `src/jobs/generation/status-store.ts`: stores short-lived generation status in memory and Redis.
+- `src/jobs/generation/status-store.ts`: stores short-lived generation status in Redis.
 - `src/jobs/generation/persistence.ts`: creates generation records, uploads output to R2, and writes media records.
 - `src/jobs/email/EmailQueue.ts`: enqueues email jobs.
 - `src/jobs/email/EmailWorker.ts`: sends email through Resend.
@@ -178,7 +177,7 @@ Required environment variables are validated in `src/utils/env.ts`. The project 
 - Change auth behavior: `src/lib/auth.ts`, `src/lib/auth-service.ts`, `src/app/api/auth/[...all]/route.ts`.
 - Change dashboard navigation/shell: `src/app/(dashboard)/layout.tsx` and `src/components/sidebar/`.
 - Change storage behavior: `src/lib/r2/`.
-- Change worker registration: `worker/queue/WorkerManager.ts`.
+- Change worker registration: `worker/index.ts`.
 
 ## Code Style Notes
 

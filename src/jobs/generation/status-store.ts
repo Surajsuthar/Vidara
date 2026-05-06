@@ -41,7 +41,6 @@ export type GenerationJobState = {
   error?: GenerationJobError;
 };
 
-const generationStatusStore = new Map<string, GenerationJobState>();
 const STORE_TTL_SECONDS = 60 * 60 * 24;
 
 function getStoreKey(id: string) {
@@ -49,21 +48,14 @@ function getStoreKey(id: string) {
 }
 
 async function readState(id: string) {
-  const cached = generationStatusStore.get(id);
-  if (cached) return cached;
-
   const redis = RedisConnection.getInstance();
   const raw = await redis.get(getStoreKey(id));
   if (!raw) return undefined;
 
-  const state = JSON.parse(raw) as GenerationJobState;
-  generationStatusStore.set(id, state);
-  return state;
+  return JSON.parse(raw) as GenerationJobState;
 }
 
 async function writeState(state: GenerationJobState) {
-  generationStatusStore.set(state.id, state);
-
   const redis = RedisConnection.getInstance();
   await redis.set(
     getStoreKey(state.id),
@@ -169,13 +161,33 @@ export async function setGenerationJobFailed(
 }
 
 export async function deleteGenerationJobState(id: string) {
-  generationStatusStore.delete(id);
   const redis = RedisConnection.getInstance();
   return redis.del(getStoreKey(id));
 }
 
 export async function listGenerationJobStates() {
-  return Array.from(generationStatusStore.values()).sort((a, b) =>
-    a.createdAt.localeCompare(b.createdAt),
-  );
+  const redis = RedisConnection.getInstance();
+  const states: GenerationJobState[] = [];
+  let cursor = "0";
+
+  do {
+    const [nextCursor, keys] = await redis.scan(
+      cursor,
+      "MATCH",
+      "generation:status:*",
+      "COUNT",
+      100,
+    );
+    cursor = nextCursor;
+
+    if (keys.length === 0) continue;
+
+    const values = await redis.mget(keys);
+    for (const value of values) {
+      if (!value) continue;
+      states.push(JSON.parse(value) as GenerationJobState);
+    }
+  } while (cursor !== "0");
+
+  return states.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }

@@ -1,17 +1,15 @@
 import { type JobsOptions, Queue, type QueueOptions } from "bullmq";
 import { RedisConnection } from "./RedisConnection";
 
-type QueueAdd<T, R, N extends string> = Queue<T, R, N>["add"];
-
 export abstract class BaseQueue<
   TJobData,
-  TResult = unknown,
-  NameType extends string = string,
+  TJobName extends string,
+  TJobResult = unknown,
 > {
-  protected queue: Queue<TJobData, TResult, NameType>;
+  protected queue: Queue<TJobData, TJobResult>;
 
   constructor(queueName: string, options?: Partial<QueueOptions>) {
-    this.queue = new Queue<TJobData, TResult, NameType>(queueName, {
+    this.queue = new Queue<TJobData, TJobResult>(queueName, {
       connection: RedisConnection.getInstance(),
       defaultJobOptions: {
         attempts: 3,
@@ -30,19 +28,12 @@ export abstract class BaseQueue<
     );
   }
 
-  async add(jobName: NameType, data: TJobData, options?: JobsOptions) {
+  async add(jobName: TJobName, data: TJobData, options?: JobsOptions) {
     return this.queue.add(
-      jobName as Parameters<QueueAdd<TJobData, TResult, NameType>>[0],
-      data as Parameters<QueueAdd<TJobData, TResult, NameType>>[1],
+      jobName as unknown as Parameters<typeof this.queue.add>[0],
+      data as Parameters<typeof this.queue.add>[1],
       options,
     );
-  }
-
-  async addBulk(
-    jobs: { name: NameType; data: TJobData; opts?: JobsOptions }[],
-  ) {
-    //
-    return this.queue.addBulk(jobs as Parameters<typeof this.queue.addBulk>[0]);
   }
 
   async getJobCounts() {
@@ -67,7 +58,7 @@ export abstract class BaseQueue<
     return this.queue.obliterate({ force: true });
   }
 
-  getQueue(): Queue<TJobData> {
+  getQueue(): Queue<TJobData, TJobResult> {
     return this.queue;
   }
 }

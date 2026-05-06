@@ -4,6 +4,24 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().min(1),
+    DATABASE_POOL_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .default(10),
+    DATABASE_POOL_IDLE_TIMEOUT_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .default(30_000),
+    DATABASE_POOL_CONNECTION_TIMEOUT_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .default(5_000),
     BETTER_AUTH_SECRET: z.string().min(1),
     TWITTER_CLIENT_ID: z.string().min(1),
     TWITTER_CLIENT_SECRET: z.string().min(1),
