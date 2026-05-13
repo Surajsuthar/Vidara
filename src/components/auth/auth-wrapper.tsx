@@ -14,7 +14,7 @@ import {
 import { signIn } from "@/lib/auth-client";
 import { Icons } from "@/lib/icons";
 
-type AuthProvider = "google" | "github" | "twitter";
+type AuthProvider = "google" | "twitter";
 
 export default function AuthWrapper() {
   const [loading, setLoading] = useState(false);
@@ -36,13 +36,13 @@ export default function AuthWrapper() {
   };
 
   return (
-    <Card className="w-full max-w-md rounded-2xl backdrop-blur-xl border border-white/12 shadow-2xl">
+    <Card className="w-full max-w-md rounded-none border-white/12 bg-[#0b0b0b]/82 text-white shadow-2xl shadow-black/40 backdrop-blur-xl">
       <CardHeader className="text-center">
-        <CardTitle className="text-xl md:text-2xl font-semibold">
-          Hey, Welcome
+        <CardTitle className="text-xl font-semibold md:text-2xl">
+          Welcome to Vidara
         </CardTitle>
-        <CardDescription className="text-sm text-muted-foreground">
-          Continue with one of the following providers
+        <CardDescription className="text-sm text-white/52">
+          Continue to generate AI images and short-form video.
         </CardDescription>
       </CardHeader>
 
@@ -50,7 +50,7 @@ export default function AuthWrapper() {
         <div className="flex flex-col gap-3">
           <Button
             variant="default"
-            className="w-full rounded-xl gap-2"
+            className="w-full gap-2 rounded-none bg-white text-black hover:bg-white/90"
             disabled={loading}
             onClick={() => handleSocialLogin("google")}
           >
@@ -60,17 +60,7 @@ export default function AuthWrapper() {
 
           <Button
             variant="default"
-            className="w-full rounded-xl gap-2"
-            disabled={loading}
-            onClick={() => handleSocialLogin("github")}
-          >
-            <Icons.Github />
-            Continue with GitHub
-          </Button>
-
-          <Button
-            variant="default"
-            className="w-full rounded-xl gap-2"
+            className="w-full gap-2 rounded-none bg-white/10 text-white hover:bg-white/15"
             disabled={loading}
             onClick={() => handleSocialLogin("twitter")}
           >
@@ -79,31 +69,31 @@ export default function AuthWrapper() {
           </Button>
         </div>
         {error && (
-          <div className="mt-4 p-2 bg-rose-400/10 text-destructive w-full flex items-center justify-center">
+          <div className="mt-4 flex w-full items-center justify-center bg-rose-400/10 p-2 text-destructive">
             {error}
           </div>
         )}
       </CardContent>
 
-      <CardFooter className="border-t flex flex-col">
-        <div className="w-full text-center py-4 text-sm">
+      <CardFooter className="flex flex-col border-t border-white/10">
+        <div className="w-full py-4 text-center text-sm text-white/58">
           Built in Public by{" "}
           <Link
             href="https://vidara.in"
             target="_blank"
-            className="inline-flex items-center gap-1 underline hover:text-foreground transition"
+            className="inline-flex items-center gap-1 underline transition hover:text-white"
           >
             VIDARA
             <Icons.Heart />
           </Link>
         </div>
-        <div className="text-[10px]">
-          By Singup, you agree to our Terms and{" "}
-          <Link
-            className="font-bold hover:underline"
-            href="/app/privacy-policy"
-          >
-            {" "}
+        <div className="text-center text-[10px] leading-5 text-white/42">
+          By signing up, you agree to our{" "}
+          <Link className="font-bold hover:underline" href="/terms">
+            Terms
+          </Link>{" "}
+          and{" "}
+          <Link className="font-bold hover:underline" href="/privacy-policy">
             Privacy Policy
           </Link>
         </div>

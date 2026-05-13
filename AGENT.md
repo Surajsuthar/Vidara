@@ -4,13 +4,15 @@ This file is a quick orientation guide for the Vidara codebase. It focuses on pr
 
 ## What This Project Is
 
-Vidara is a Next.js image generation web app. Users authenticate, choose an image model, submit generation prompts, and receive generated images after background processing. The app uses a web/API process for the UI and request intake, plus a separate BullMQ worker process for long-running generation and email jobs.
+Vidara is a Next.js AI media generation product for images and short-form video. Users authenticate, choose an image or video model, submit prompts, and receive generated media after background processing. The product is positioned around creating images, shorts, reels, and TikTok-style vertical creative for fast social-content iteration.
+
+The app uses a web/API process for the UI and request intake, plus a separate BullMQ worker process for long-running generation and email jobs.
 
 ## Stack
 
 - Framework: Next.js 16 App Router with React 19 and TypeScript.
 - Styling/UI: Tailwind CSS 4, shadcn-style local UI components, Radix primitives, lucide-react icons, Sonner toasts.
-- Auth: Better Auth with social providers for Twitter/X, Google, and GitHub.
+- Auth: Better Auth with social providers for Twitter/X and Google.
 - Database: PostgreSQL via Drizzle ORM.
 - Queue/Workers: BullMQ over Redis with a standalone worker entrypoint.
 - Image generation: Provider adapter layer under `ai/` for OpenAI, xAI, Google/Vertex, Fal, Replicate, DeepInfra, and Amazon Bedrock.
@@ -52,7 +54,7 @@ worker/              Standalone worker process and reusable BullMQ base classes
 
 The application uses App Router route groups:
 
-- `src/app/page.tsx`: public landing/home page. Redirects signed-in users to `/explore`.
+- `src/app/page.tsx`: public landing/home page. It composes the modular homepage from `src/components/home/` and redirects signed-in users to `/explore`.
 - `src/app/(app)/`: public informational pages such as pricing, about, terms, and privacy policy.
 - `src/app/(auth)/auth/page.tsx`: authentication UI.
 - `src/app/(dashboard)/layout.tsx`: authenticated dashboard shell with sidebar, header, and generation context.
@@ -66,13 +68,15 @@ The application uses App Router route groups:
 ## Main Generation Flow
 
 1. The user enters a prompt in `src/components/chat-interface.tsx`.
-2. The component builds an `ImageGenOptions` payload from the selected model and model-specific config.
+2. The component builds generation options from the selected model and model-specific config.
 3. `POST /api/generate` in `src/app/api/generate/route.ts` validates auth, rate limits, validates the payload with Zod, creates a generation record, writes a queued status, and enqueues a BullMQ job.
 4. `GenerationQueue` enqueues a `generate-image` job on the `generation` queue.
 5. `worker/index.ts` starts `GenerationWorker` and `EmailWorker`.
 6. `GenerationWorker` marks the job as processing, calls `generateImage()` from `ai/index.ts`, persists generated images to R2 and Postgres, then updates Redis job status.
 7. The client polls `GET /api/generate?requestId=...` until the job is completed or failed.
 8. Completed results are displayed in `ChatInterface`.
+
+Video model metadata currently lives alongside image model metadata. When adding video generation UX or APIs, preserve the same provider-neutral pattern used by the image flow instead of coupling UI code directly to provider SDKs.
 
 ## AI Layer
 
@@ -144,6 +148,7 @@ Generated images are uploaded to R2 and then stored in the `media` table. The co
 
 ## Frontend Components
 
+- `src/components/home/`: modular public homepage sections, data, and header for the AI image and short-video product surface.
 - `src/components/chat-interface.tsx`: main prompt input, model selection, image config, generation request, polling, and result display.
 - `src/components/model-config.tsx`: model-specific generation controls.
 - `src/components/model-tab.tsx`: model selector UI.
@@ -152,7 +157,7 @@ Generated images are uploaded to R2 and then stored in the `media` table. The co
 - `src/components/ui/`: local shadcn-style UI primitives.
 - `src/components/providers/` and `src/components/sidebar/provider.tsx`: root/dashboard providers.
 
-Most frontend code is client-side React with Tailwind utility classes.
+Most frontend code is client-side React with Tailwind utility classes. Keep landing-page composition in small sections and keep repeated homepage copy/data in `home-data.ts` so visual components stay readable.
 
 ## Environment Dependencies
 
@@ -184,11 +189,27 @@ Required environment variables are validated in `src/utils/env.ts`. The project 
 
 - TypeScript is strict and uses path aliases like `@/*` for `src/*` and `@/ai/*` for `ai/*`.
 - Formatting and linting are handled by Biome.
+- Use 2-space indentation, double quotes, semicolons, and organized imports. Run `npm run lint` before handing off larger changes.
+- Prefer typed constants and small presentational components over large single-file pages.
+- Keep route files thin. App Router pages should compose components and delegate section logic to `src/components/` or server helpers.
+- Use `Button` with `asChild` when the click target is a `Link`, instead of nesting links inside buttons.
+- Use lucide-react icons for common UI actions and keep icon usage consistent with existing shadcn-style components.
+- Keep Tailwind class lists readable by grouping layout, spacing, color, and state classes in a consistent order where practical.
+- Avoid unrelated refactors while changing UI. If a change touches generation, auth, queues, storage, or schema, keep the behavioral surface explicit and add focused tests or manual verification notes.
 - Server-only integrations are kept in `src/lib/`, `src/jobs/`, `worker/`, and `ai/providers/`.
 - Client components use `"use client"` and live mostly under `src/components/` and selected app pages.
 - Long-running work should go through BullMQ workers instead of blocking API routes.
 - Generated media should be persisted to R2 and referenced by database records.
 
+## Styling Notes
+
+- Vidara should feel like a focused creative tool for AI images and short videos, not a generic SaaS template.
+- Public pages should show the product promise immediately: image generation, vertical video, reels, shorts, and TikTok-style creative.
+- Prefer restrained surfaces, strong media previews, compact controls, and direct calls to action.
+- Do not use nested cards. Use cards only for repeated items, framed tools, or clear content groups.
+- Keep border radii at or below the local component defaults unless an existing design pattern calls for more.
+- Make responsive states first-class. Text should not overflow buttons or cards on mobile, and fixed-format media previews should use stable dimensions or aspect ratios.
+
 ## Current Architecture In One Sentence
 
-Vidara is a typed Next.js app where the browser queues generation requests through an authenticated API, BullMQ workers execute provider-specific image generation, outputs are persisted to R2 and Postgres, and the dashboard polls Redis-backed status until results are ready.
+Vidara is a typed Next.js app where the browser queues AI media generation requests through an authenticated API, BullMQ workers execute provider-specific image or video generation, outputs are persisted to R2 and Postgres, and the dashboard polls Redis-backed status until results are ready.

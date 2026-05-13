@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  IconBrandGithub,
-  IconBrandGoogle,
-  IconBrandX,
-} from "@tabler/icons-react";
+import { IconBrandGoogle, IconBrandX } from "@tabler/icons-react";
 import {
   Link2,
   Link2Off,
@@ -61,12 +57,6 @@ const SOCIAL_PROVIDERS = [
     label: "Google",
     Icon: IconBrandGoogle,
     description: "Connect your Google account",
-  },
-  {
-    id: "github" as const,
-    label: "GitHub",
-    Icon: IconBrandGithub,
-    description: "Connect your GitHub account",
   },
   {
     id: "twitter" as const,
@@ -196,9 +186,7 @@ export default function SettingsPage() {
     setIsRevokingAll(false);
   };
 
-  const handleLinkAccount = async (
-    provider: "google" | "github" | "twitter",
-  ) => {
+  const handleLinkAccount = async (provider: "google" | "twitter") => {
     setLinkingProvider(provider);
     try {
       await authClient.linkSocial({
