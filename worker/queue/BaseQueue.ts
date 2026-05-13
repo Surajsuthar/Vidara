@@ -6,11 +6,25 @@ export abstract class BaseQueue<
   TJobName extends string,
   TJobResult = unknown,
 > {
-  protected queue: Queue<TJobData, TJobResult>;
+  protected queue: Queue<
+    TJobData,
+    TJobResult,
+    TJobName,
+    TJobData,
+    TJobResult,
+    TJobName
+  >;
 
   constructor(queueName: string, options?: Partial<QueueOptions>) {
-    this.queue = new Queue<TJobData, TJobResult>(queueName, {
-      connection: RedisConnection.getInstance(),
+    this.queue = new Queue<
+      TJobData,
+      TJobResult,
+      TJobName,
+      TJobData,
+      TJobResult,
+      TJobName
+    >(queueName, {
+      connection: RedisConnection.getBullMQOptions(),
       defaultJobOptions: {
         attempts: 3,
         backoff: {
@@ -29,11 +43,7 @@ export abstract class BaseQueue<
   }
 
   async add(jobName: TJobName, data: TJobData, options?: JobsOptions) {
-    return this.queue.add(
-      jobName as unknown as Parameters<typeof this.queue.add>[0],
-      data as Parameters<typeof this.queue.add>[1],
-      options,
-    );
+    return this.queue.add(jobName, data, options);
   }
 
   async getJobCounts() {
@@ -58,7 +68,14 @@ export abstract class BaseQueue<
     return this.queue.obliterate({ force: true });
   }
 
-  getQueue(): Queue<TJobData, TJobResult> {
+  getQueue(): Queue<
+    TJobData,
+    TJobResult,
+    TJobName,
+    TJobData,
+    TJobResult,
+    TJobName
+  > {
     return this.queue;
   }
 }

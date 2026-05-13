@@ -17,7 +17,7 @@ export abstract class BaseWorker<TJobData, TJobResult = void> {
       queueName,
       (job) => this.process(job),
       {
-        connection: RedisConnection.getInstance(),
+        connection: RedisConnection.getBullMQOptions(),
         concurrency: 5,
         ...options,
       },
