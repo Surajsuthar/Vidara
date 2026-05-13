@@ -24,7 +24,7 @@ export abstract class BaseQueue<
       TJobResult,
       TJobName
     >(queueName, {
-      connection: RedisConnection.getInstance(),
+      connection: RedisConnection.getBullMQOptions(),
       defaultJobOptions: {
         attempts: 3,
         backoff: {

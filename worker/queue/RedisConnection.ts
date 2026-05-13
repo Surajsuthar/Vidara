@@ -6,20 +6,24 @@ export class RedisConnection {
 
   private constructor() {}
 
+  static getBullMQOptions() {
+    return {
+      host: env.REDIS_HOST ?? "localhost",
+      port: Number(env.REDIS_PORT ?? 6379),
+      password: env.REDIS_PASSWORD,
+      tls: {},
+      maxRetriesPerRequest: null,
+      enableReadyCheck: false,
+      retryStrategy: (times: number) => {
+        if (times > 10) return null;
+        return Math.min(times * 500, 5000);
+      },
+    };
+  }
+
   static getInstance(): Redis {
     if (!RedisConnection.instance) {
-      const options: RedisOptions = {
-        host: env.REDIS_HOST ?? "localhost",
-        port: Number(env.REDIS_PORT ?? 6379),
-        password: env.REDIS_PASSWORD,
-        tls: {},
-        maxRetriesPerRequest: null, // Required by BullMQ
-        enableReadyCheck: false,
-        retryStrategy: (times: number) => {
-          if (times > 10) return null; // Stop retrying after 10 attempts
-          return Math.min(times * 500, 5000); // Exponential backoff
-        },
-      };
+      const options: RedisOptions = RedisConnection.getBullMQOptions();
 
       RedisConnection.instance = new Redis(options);
 
