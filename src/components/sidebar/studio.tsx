@@ -31,9 +31,9 @@ export function Studio() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground border"
+              className="border border-white/10 bg-white/[0.04] text-white data-[state=open]:bg-white/10 data-[state=open]:text-white hover:bg-white/8 hover:text-white"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
+              <div className="flex aspect-square size-8 items-center justify-center border border-white/10 bg-black/30 text-[#f5b86f]">
                 {selected ? (
                   <selected.icon className="size-4" />
                 ) : (
@@ -42,7 +42,7 @@ export function Studio() {
               </div>
               <div className="flex flex-col gap-1.5 leading-none">
                 <span className="font-medium">Studio</span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-white/48">
                   {selected ? selected.label : "Choose a studio"}
                 </span>
               </div>

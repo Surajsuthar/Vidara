@@ -12,7 +12,7 @@ The app uses a web/API process for the UI and request intake, plus a separate Bu
 
 - Framework: Next.js 16 App Router with React 19 and TypeScript.
 - Styling/UI: Tailwind CSS 4, shadcn-style local UI components, Radix primitives, lucide-react icons, Sonner toasts.
-- Auth: Better Auth with social providers for Twitter/X and Google.
+- Auth: Better Auth with Google social sign-in.
 - Database: PostgreSQL via Drizzle ORM.
 - Queue/Workers: BullMQ over Redis with a standalone worker entrypoint.
 - Image generation: Provider adapter layer under `ai/` for OpenAI, xAI, Google/Vertex, Fal, Replicate, DeepInfra, and Amazon Bedrock.

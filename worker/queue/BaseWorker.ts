@@ -4,7 +4,7 @@ import {
   Worker,
   type WorkerOptions,
 } from "bullmq";
-import { RedisConnection } from "./RedisConnection";
+import { getRedisOptions } from "./RedisConnection";
 
 export abstract class BaseWorker<TJobData, TJobResult = void> {
   protected worker: Worker<TJobData, TJobResult>;
@@ -17,7 +17,7 @@ export abstract class BaseWorker<TJobData, TJobResult = void> {
       queueName,
       (job) => this.process(job),
       {
-        connection: RedisConnection.getBullMQOptions(),
+        connection: getRedisOptions(),
         concurrency: 5,
         ...options,
       },

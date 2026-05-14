@@ -11,6 +11,7 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <SidebarProvider
+      className="bg-[#070707] text-white"
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",
@@ -26,7 +27,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <Suspense fallback={null}>
           <SiteHeader />
         </Suspense>
-        <main className="p-4">{children}</main>
+        <main className="min-h-[calc(100vh-var(--header-height))] bg-[#070707] p-3 text-white sm:p-4">
+          {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

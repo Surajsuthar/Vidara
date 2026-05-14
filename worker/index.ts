@@ -3,7 +3,7 @@ import "dotenv/config";
 import { EmailWorker } from "@/jobs/email/EmailWorker";
 import { GenerationWorker } from "@/jobs/generation/GenerationWorker";
 import { closeDbPool } from "@/lib/db";
-import { RedisConnection } from "./queue/RedisConnection";
+import { closeRedisClient } from "./queue/RedisConnection";
 
 const workers = [EmailWorker.getInstance(), GenerationWorker.getInstance()];
 
@@ -13,7 +13,7 @@ console.log(`[Worker] ${workers.length} workers running`);
 const shutdown = async (signal: string) => {
   console.log(`[Worker] Received ${signal}, shutting down...`);
   await Promise.all(workers.map((worker) => worker.close()));
-  await RedisConnection.disconnect();
+  await closeRedisClient();
   await closeDbPool();
   process.exit(0);
 };

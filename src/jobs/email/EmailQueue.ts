@@ -13,36 +13,27 @@ export type EmailJobData = {
   attachments?: Attachment[];
 };
 
-export class EmailQueue extends BaseQueue<EmailJobData, EmailJobName> {
-  private static instance: EmailQueue;
+let emailQueue: BaseQueue<EmailJobData, EmailJobName> | undefined;
 
-  private constructor() {
-    super("email");
-  }
+function getEmailQueue() {
+  emailQueue ??= new BaseQueue<EmailJobData, EmailJobName>("email");
+  return emailQueue;
+}
 
-  static getInstance(): EmailQueue {
-    if (!EmailQueue.instance) {
-      EmailQueue.instance = new EmailQueue();
-    }
+export function enqueueEmail(data: EmailJobData, options?: JobsOptions) {
+  return getEmailQueue().add("send-email", data, options);
+}
 
-    return EmailQueue.instance;
-  }
-
-  async enqueueEmail(data: EmailJobData, options?: JobsOptions) {
-    return this.add("send-email", data, options);
-  }
-
-  async enqueueWelcomeEmail(
-    data: Omit<EmailJobData, "subject"> & { subject?: string },
-    options?: JobsOptions,
-  ) {
-    return this.add(
-      "send-welcome-email",
-      {
-        ...data,
-        subject: data.subject ?? "Welcome to Vidara",
-      },
-      options,
-    );
-  }
+export function enqueueWelcomeEmail(
+  data: Omit<EmailJobData, "subject"> & { subject?: string },
+  options?: JobsOptions,
+) {
+  return getEmailQueue().add(
+    "send-welcome-email",
+    {
+      ...data,
+      subject: data.subject ?? "Welcome to Vidara",
+    },
+    options,
+  );
 }

@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { lastLoginMethod } from "better-auth/plugins";
-import { EmailQueue } from "@/jobs/email/EmailQueue";
+import { enqueueWelcomeEmail } from "@/jobs/email/EmailQueue";
 import { signupTemplate } from "@/jobs/email/template";
 import { env } from "@/utils/env";
 import { account, session, user, verification } from "../../drizzle/schema";
@@ -23,10 +23,6 @@ export const auth = betterAuth({
     joins: true,
   },
   socialProviders: {
-    twitter: {
-      clientId: env.TWITTER_CLIENT_ID,
-      clientSecret: env.TWITTER_CLIENT_SECRET,
-    },
     google: {
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
@@ -50,7 +46,7 @@ export const auth = betterAuth({
             name: string;
           };
 
-          await EmailQueue.getInstance().enqueueWelcomeEmail({
+          await enqueueWelcomeEmail({
             to: createdUser.email,
             subject: "Welcome to Vidara",
             html: signupTemplate(createdUser.name),

@@ -12,42 +12,35 @@ export type GenerationJobData = {
   notifyChannel?: string;
 };
 
-export class GenerationQueue extends BaseQueue<
-  GenerationJobData,
-  GenerationJobName
-> {
-  private static instance: GenerationQueue;
+let generationQueue:
+  | BaseQueue<GenerationJobData, GenerationJobName>
+  | undefined;
 
-  private constructor() {
-    super("generation", {
+function getGenerationQueue() {
+  generationQueue ??= new BaseQueue<GenerationJobData, GenerationJobName>(
+    "generation",
+    {
       defaultJobOptions: {
         attempts: 3,
         backoff: {
           type: "exponential",
           delay: 2000,
         },
-        removeOnComplete: {
-          count: 200,
-        },
-        removeOnFail: {
-          count: 500,
-        },
+        removeOnComplete: { count: 200 },
+        removeOnFail: { count: 500 },
       },
-    });
-  }
+    },
+  );
 
-  static getInstance(): GenerationQueue {
-    if (!GenerationQueue.instance) {
-      GenerationQueue.instance = new GenerationQueue();
-    }
+  return generationQueue;
+}
 
-    return GenerationQueue.instance;
-  }
-
-  async enqueueImageGeneration(data: GenerationJobData, options?: JobsOptions) {
-    return this.add("generate-image", data, {
-      jobId: data.requestId,
-      ...options,
-    });
-  }
+export function enqueueImageGeneration(
+  data: GenerationJobData,
+  options?: JobsOptions,
+) {
+  return getGenerationQueue().add("generate-image", data, {
+    jobId: data.requestId,
+    ...options,
+  });
 }

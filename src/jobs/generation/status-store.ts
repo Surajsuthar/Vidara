@@ -1,4 +1,4 @@
-import { RedisConnection } from "../../../worker/queue/RedisConnection";
+import { getRedisClient } from "../../../worker/queue/RedisConnection";
 
 export type GenerationJobStatus =
   | "queued"
@@ -48,7 +48,7 @@ function getStoreKey(id: string) {
 }
 
 async function readState(id: string) {
-  const redis = RedisConnection.getInstance();
+  const redis = getRedisClient();
   const raw = await redis.get(getStoreKey(id));
   if (!raw) return undefined;
 
@@ -56,7 +56,7 @@ async function readState(id: string) {
 }
 
 async function writeState(state: GenerationJobState) {
-  const redis = RedisConnection.getInstance();
+  const redis = getRedisClient();
   await redis.set(
     getStoreKey(state.id),
     JSON.stringify(state),
@@ -161,12 +161,12 @@ export async function setGenerationJobFailed(
 }
 
 export async function deleteGenerationJobState(id: string) {
-  const redis = RedisConnection.getInstance();
+  const redis = getRedisClient();
   return redis.del(getStoreKey(id));
 }
 
 export async function listGenerationJobStates() {
-  const redis = RedisConnection.getInstance();
+  const redis = getRedisClient();
   const states: GenerationJobState[] = [];
   let cursor = "0";
 

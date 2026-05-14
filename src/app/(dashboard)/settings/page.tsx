@@ -1,6 +1,6 @@
 "use client";
 
-import { IconBrandGoogle, IconBrandX } from "@tabler/icons-react";
+import { IconBrandGoogle } from "@tabler/icons-react";
 import {
   Link2,
   Link2Off,
@@ -57,12 +57,6 @@ const SOCIAL_PROVIDERS = [
     label: "Google",
     Icon: IconBrandGoogle,
     description: "Connect your Google account",
-  },
-  {
-    id: "twitter" as const,
-    label: "Twitter / X",
-    Icon: IconBrandX,
-    description: "Connect your Twitter / X account",
   },
 ];
 
@@ -186,7 +180,7 @@ export default function SettingsPage() {
     setIsRevokingAll(false);
   };
 
-  const handleLinkAccount = async (provider: "google" | "twitter") => {
+  const handleLinkAccount = async (provider: "google") => {
     setLinkingProvider(provider);
     try {
       await authClient.linkSocial({
@@ -221,22 +215,22 @@ export default function SettingsPage() {
   /* ────────────────────────────────── render ── */
 
   return (
-    <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-1 py-2 sm:px-2 lg:py-4">
+    <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-1 py-2 text-white sm:px-2 lg:py-4">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="flex min-h-34 flex-col justify-end rounded-xl border bg-card px-5 py-5 shadow-sm sm:px-6">
-          <p className="text-xs font-medium uppercase text-muted-foreground">
+        <div className="flex min-h-34 flex-col justify-end border border-white/10 bg-[#101010] px-5 py-5 shadow-sm sm:px-6">
+          <p className="text-xs font-medium uppercase text-[#f5b86f]">
             Workspace
           </p>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight">
             Settings
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          <p className="mt-2 max-w-2xl text-sm text-white/56">
             Manage identity, connected accounts, sessions, and local display
             preferences for Vidara.
           </p>
         </div>
 
-        <div className="flex items-center gap-4 rounded-xl border bg-card px-5 py-5 shadow-sm">
+        <div className="flex items-center gap-4 border border-white/10 bg-[#101010] px-5 py-5 shadow-sm">
           {isPending ? (
             <Skeleton className="h-14 w-14 rounded-full" />
           ) : (
@@ -259,12 +253,10 @@ export default function SettingsPage() {
                 <p className="truncate text-sm font-medium">
                   {user?.name ?? "Account"}
                 </p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {user?.email}
-                </p>
+                <p className="truncate text-xs text-white/52">{user?.email}</p>
               </>
             )}
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="mt-2 text-xs text-white/46">
               {accounts.length > 0
                 ? `${accounts.length} connected provider${accounts.length === 1 ? "" : "s"}`
                 : "Account access and security"}
@@ -280,7 +272,7 @@ export default function SettingsPage() {
       >
         <TabsList
           variant="line"
-          className="sticky top-16 hidden w-full rounded-xl border bg-card p-2 shadow-sm lg:flex"
+          className="sticky top-16 hidden w-full border border-white/10 bg-[#101010] p-2 text-white shadow-sm lg:flex"
         >
           <TabsTrigger value="profile" className="gap-2 px-3 py-2">
             <UserRound className="h-4 w-4" />
@@ -312,7 +304,7 @@ export default function SettingsPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsList className="grid w-full grid-cols-4 lg:hidden">
+        <TabsList className="grid w-full grid-cols-4 border border-white/10 bg-[#101010] text-white lg:hidden">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="appearance">Theme</TabsTrigger>
           <TabsTrigger
@@ -335,7 +327,7 @@ export default function SettingsPage() {
 
         {/* ══════════════════════════════ PROFILE ══ */}
         <TabsContent value="profile" className="mt-0 space-y-4">
-          <Card className="rounded-xl shadow-sm">
+          <Card className="border-white/10 bg-[#101010] text-white shadow-sm">
             <CardHeader>
               <CardTitle>Profile</CardTitle>
               <CardDescription>
@@ -451,7 +443,7 @@ export default function SettingsPage() {
 
         {/* ══════════════════════════ APPEARANCE ══ */}
         <TabsContent value="appearance" className="mt-0 space-y-4">
-          <Card className="rounded-xl shadow-sm">
+          <Card className="border-white/10 bg-[#101010] text-white shadow-sm">
             <CardHeader>
               <CardTitle>Appearance</CardTitle>
               <CardDescription>
@@ -497,7 +489,7 @@ export default function SettingsPage() {
 
         {/* ═══════════════════════════ ACCOUNTS ══ */}
         <TabsContent value="accounts" className="mt-0 space-y-4">
-          <Card className="rounded-xl shadow-sm">
+          <Card className="border-white/10 bg-[#101010] text-white shadow-sm">
             <CardHeader>
               <CardTitle>Connected Accounts</CardTitle>
               <CardDescription>
@@ -573,7 +565,7 @@ export default function SettingsPage() {
         {/* ════════════════════════════ SECURITY ══ */}
         <TabsContent value="security" className="mt-0 space-y-4">
           {/* Active sessions */}
-          <Card className="rounded-xl shadow-sm">
+          <Card className="border-white/10 bg-[#101010] text-white shadow-sm">
             <CardHeader>
               <CardTitle>Active Sessions</CardTitle>
               <CardDescription>
@@ -666,7 +658,7 @@ export default function SettingsPage() {
             )}
           </Card>
 
-          <Card className="rounded-xl border-destructive/30 shadow-sm">
+          <Card className="border-destructive/30 bg-[#101010] text-white shadow-sm">
             <CardHeader>
               <CardTitle className="text-destructive">Danger Zone</CardTitle>
               <CardDescription>

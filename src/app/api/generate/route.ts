@@ -6,7 +6,7 @@ import type {
   ImageOutputFormat,
   QualityTier,
 } from "@/ai/types";
-import { GenerationQueue } from "@/jobs/generation/GenerationQueue";
+import { enqueueImageGeneration } from "@/jobs/generation/GenerationQueue";
 import { createPendingGenerationRecord } from "@/jobs/generation/persistence";
 import {
   createGenerationJobState,
@@ -182,8 +182,7 @@ export async function POST(req: Request) {
       model: payload.model,
     });
 
-    const queue = GenerationQueue.getInstance();
-    await queue.enqueueImageGeneration({
+    await enqueueImageGeneration({
       requestId,
       userId: userAuth.id,
       prompt: payload.prompt,

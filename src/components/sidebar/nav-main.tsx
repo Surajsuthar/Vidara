@@ -11,11 +11,13 @@ import { Studio } from "./studio";
 export function NavMain() {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Studio</SidebarGroupLabel>
+      <SidebarGroupLabel className="text-white/42">Studio</SidebarGroupLabel>
       <SidebarMenu>
         <Studio />
       </SidebarMenu>
-      <SidebarGroupLabel>Previews Chats</SidebarGroupLabel>
+      <SidebarGroupLabel className="mt-4 text-white/42">
+        Recent work
+      </SidebarGroupLabel>
       <SidebarGroup>
         <MessageHistorys />
       </SidebarGroup>

@@ -14,7 +14,7 @@ import {
 import { signIn } from "@/lib/auth-client";
 import { Icons } from "@/lib/icons";
 
-type AuthProvider = "google" | "twitter";
+type AuthProvider = "google";
 
 export default function AuthWrapper() {
   const [loading, setLoading] = useState(false);
@@ -56,16 +56,6 @@ export default function AuthWrapper() {
           >
             <Icons.GoogleLogo />
             Continue with Google
-          </Button>
-
-          <Button
-            variant="default"
-            className="w-full gap-2 rounded-none bg-white/10 text-white hover:bg-white/15"
-            disabled={loading}
-            onClick={() => handleSocialLogin("twitter")}
-          >
-            <Icons.Twitter />
-            Continue with Twitter
           </Button>
         </div>
         {error && (

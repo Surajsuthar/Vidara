@@ -1,19 +1,21 @@
 import { type JobsOptions, Queue, type QueueOptions } from "bullmq";
-import { RedisConnection } from "./RedisConnection";
+import { getRedisOptions } from "./RedisConnection";
 
-export abstract class BaseQueue<
+type TypedQueue<TJobData, TJobResult, TJobName extends string> = Queue<
+  TJobData,
+  TJobResult,
+  TJobName,
+  TJobData,
+  TJobResult,
+  TJobName
+>;
+
+export class BaseQueue<
   TJobData,
   TJobName extends string,
   TJobResult = unknown,
 > {
-  protected queue: Queue<
-    TJobData,
-    TJobResult,
-    TJobName,
-    TJobData,
-    TJobResult,
-    TJobName
-  >;
+  protected queue: TypedQueue<TJobData, TJobResult, TJobName>;
 
   constructor(queueName: string, options?: Partial<QueueOptions>) {
     this.queue = new Queue<
@@ -24,15 +26,15 @@ export abstract class BaseQueue<
       TJobResult,
       TJobName
     >(queueName, {
-      connection: RedisConnection.getBullMQOptions(),
+      connection: getRedisOptions(),
       defaultJobOptions: {
         attempts: 3,
         backoff: {
           type: "exponential",
           delay: 1000,
         },
-        removeOnComplete: { count: 100 }, // Keep last 100 completed jobs
-        removeOnFail: { count: 500 }, // Keep last 500 failed jobs
+        removeOnComplete: { count: 100 },
+        removeOnFail: { count: 500 },
       },
       ...options,
     });
@@ -68,14 +70,7 @@ export abstract class BaseQueue<
     return this.queue.obliterate({ force: true });
   }
 
-  getQueue(): Queue<
-    TJobData,
-    TJobResult,
-    TJobName,
-    TJobData,
-    TJobResult,
-    TJobName
-  > {
+  getQueue(): TypedQueue<TJobData, TJobResult, TJobName> {
     return this.queue;
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Github } from "lucide-react";
+import { Github, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -34,15 +34,27 @@ export function SiteHeader() {
       }
     : null;
 
+  const formattedTitle = pageTitle
+    ? pageTitle
+        .split("-")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ")
+    : "Studio";
+
   return (
-    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b border-border/40 bg-background/60 backdrop-blur-xl supports-backdrop-filter:bg-background/60 sticky top-0 z-40 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+    <header className="sticky top-0 z-40 flex h-(--header-height) shrink-0 items-center gap-2 border-b border-white/10 bg-[#070707]/88 text-white backdrop-blur-xl transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-2 lg:gap-2 lg:px-4">
-        {pageTitle && (
+        {formattedTitle && (
           <>
-            <h1 className="text-base font-medium">{pageTitle}</h1>
+            <div className="flex items-center gap-2">
+              <Sparkles className="size-4 text-[#f5b86f]" />
+              <h1 className="text-sm font-medium sm:text-base">
+                {formattedTitle}
+              </h1>
+            </div>
             <Separator
               orientation="vertical"
-              className="mx-2 data-[orientation=vertical]:h-4"
+              className="mx-2 bg-white/12 data-[orientation=vertical]:h-4"
             />
           </>
         )}
@@ -51,12 +63,16 @@ export function SiteHeader() {
           {/* Credits */}
           <Separator
             orientation="vertical"
-            className="mx-2 data-[orientation=vertical]:h-4"
+            className="mx-2 hidden bg-white/12 data-[orientation=vertical]:h-4 sm:block"
           />
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-white/12 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+              >
                 {!isPending && session?.user ? "0.00" : "0.00"}
               </Button>
             </TooltipTrigger>
@@ -72,7 +88,12 @@ export function SiteHeader() {
           {/* GitHub */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="sm" asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                className="border-white/12 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+              >
                 <Link
                   href="https://github.com/Surajsuthar/Vidara"
                   target="_blank"
@@ -92,7 +113,11 @@ export function SiteHeader() {
           {user ? (
             <NavUser user={user} />
           ) : (
-            <Button asChild size="sm">
+            <Button
+              asChild
+              size="sm"
+              className="bg-white text-black hover:bg-white/90"
+            >
               <Link href="/auth">Sign Up</Link>
             </Button>
           )}
