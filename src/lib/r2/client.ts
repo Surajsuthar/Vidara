@@ -2,7 +2,7 @@ import { S3Client } from "@aws-sdk/client-s3";
 import { env } from "@/utils/env";
 
 export const R2_BUCKET = env.R2_BUCKET_NAME;
-export const R2_PRIVATE_BUCKET = env.R2_PRIVATE_BUCKET_NAME;
+export const R2_PRIVATE_BUCKET = env.R2_PRIVATE_BUCKET_NAME ?? R2_BUCKET;
 
 class R2ClientSingleton {
   private static instance: R2ClientSingleton | null = null;
