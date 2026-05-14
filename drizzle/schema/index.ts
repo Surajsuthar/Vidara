@@ -229,12 +229,39 @@ export const userCredit = pgTable(
   (t) => [uniqueIndex("user_credits_userId_idx").on(t.userId)],
 );
 
+export const creditTransaction = pgTable(
+  "credit_transactions",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id),
+    generationId: text("generation_id").references(() => generation.id),
+    type: varchar("type", {
+      enum: ["grant", "purchase", "debit", "refund", "adjustment"],
+    }).notNull(),
+    credits: integer("credits").notNull(),
+    balanceAfter: integer("balance_after").notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("credit_transactions_user_idx").on(t.userId),
+    index("credit_transactions_generation_idx").on(t.generationId),
+    uniqueIndex("credit_transactions_generation_type_idx").on(
+      t.generationId,
+      t.type,
+    ),
+  ],
+);
+
 export const userRelations = relations(user, ({ many, one }) => ({
   sessions: many(session),
   accounts: many(account),
   media: many(media),
   generations: many(generation),
   chat: many(chat),
+  creditTransactions: many(creditTransaction),
   userCredit: one(userCredit, {
     fields: [user.id],
     references: [userCredit.userId],
@@ -297,6 +324,20 @@ export const userCreditRelations = relations(userCredit, ({ one }) => ({
   user: one(user, { fields: [userCredit.userId], references: [user.id] }),
 }));
 
+export const creditTransactionRelations = relations(
+  creditTransaction,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [creditTransaction.userId],
+      references: [user.id],
+    }),
+    generation: one(generation, {
+      fields: [creditTransaction.generationId],
+      references: [generation.id],
+    }),
+  }),
+);
+
 export type User = InferSelectModel<typeof user>;
 export type Session = InferSelectModel<typeof session>;
 export type Account = InferSelectModel<typeof account>;
@@ -304,3 +345,4 @@ export type Verification = InferSelectModel<typeof verification>;
 export type Media = InferSelectModel<typeof media>;
 export type Generation = InferSelectModel<typeof generation>;
 export type UserCredit = InferSelectModel<typeof userCredit>;
+export type CreditTransaction = InferSelectModel<typeof creditTransaction>;

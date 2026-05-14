@@ -11,6 +11,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useGithub } from "@/hooks/use-github-count";
+import { useQueryData } from "@/hooks/use-query-data";
 import { useSession } from "@/lib/auth-client";
 import { getStudioItemByMode } from "@/lib/studio-config";
 import { NavUser } from "./nav-user";
@@ -20,6 +21,30 @@ export function SiteHeader() {
   const { data: session, isPending } = useSession();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { data: creditData } = useQueryData<{
+    success: true;
+    credits: number;
+    expireAt: string;
+  }>(
+    ["user-credits", session?.user?.id],
+    async () => {
+      const response = await fetch("/api/credits", {
+        method: "GET",
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch credits.");
+      }
+
+      return response.json();
+    },
+    {
+      enabled: Boolean(session?.user),
+      staleTime: 30_000,
+      refetchInterval: 30_000,
+    },
+  );
 
   const pageTitle =
     pathname === "/generate"
@@ -73,7 +98,9 @@ export function SiteHeader() {
                 size="sm"
                 className="border-white/12 bg-white/5 text-white hover:bg-white/10 hover:text-white"
               >
-                {!isPending && session?.user ? "0.00" : "0.00"}
+                {!isPending && session?.user
+                  ? `${creditData?.credits ?? 0} credits`
+                  : "0 credits"}
               </Button>
             </TooltipTrigger>
             <TooltipContent>

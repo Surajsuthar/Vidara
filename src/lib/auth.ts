@@ -4,6 +4,7 @@ import { nextCookies } from "better-auth/next-js";
 import { lastLoginMethod } from "better-auth/plugins";
 import { enqueueWelcomeEmail } from "@/jobs/email/EmailQueue";
 import { signupTemplate } from "@/jobs/email/template";
+import { grantCredits, WELCOME_CREDITS } from "@/utils/credit-service";
 import { env } from "@/utils/env";
 import { account, session, user, verification } from "../../drizzle/schema";
 import { db } from "./db";
@@ -42,16 +43,25 @@ export const auth = betterAuth({
       create: {
         after: async ({ user }) => {
           const createdUser = user as {
+            id: string;
             email: string;
             name: string;
           };
 
-          await enqueueWelcomeEmail({
-            to: createdUser.email,
-            subject: "Welcome to Vidara",
-            html: signupTemplate(createdUser.name),
-            text: `Welcome ${createdUser.name}. You have successfully signed up to Vidara.`,
-          });
+          await Promise.all([
+            grantCredits({
+              userId: createdUser.id,
+              credits: WELCOME_CREDITS,
+              type: "grant",
+              description: "Welcome credits",
+            }),
+            enqueueWelcomeEmail({
+              to: createdUser.email,
+              subject: "Welcome to Vidara",
+              html: signupTemplate(createdUser.name),
+              text: `Welcome ${createdUser.name}. You have successfully signed up to Vidara.`,
+            }),
+          ]);
         },
       },
     },

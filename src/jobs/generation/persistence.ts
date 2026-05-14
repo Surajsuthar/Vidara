@@ -8,6 +8,7 @@ import type {
 import { generation, media } from "../../../drizzle/schema";
 import { db } from "../../lib/db";
 import { uploadBase64Image } from "../../lib/r2";
+import { applyCreditUsageToGeneratedMedia } from "../../utils/credit-service";
 
 const GENERATION_QUALITY_TIERS = [
   "fast",
@@ -146,6 +147,11 @@ export async function persistGenerationResult(input: {
         completedAt: new Date(),
       })
       .where(eq(generation.id, input.requestId));
+  });
+
+  await applyCreditUsageToGeneratedMedia({
+    requestId: input.requestId,
+    mediaIds: uploadedImages.map((image) => image.id),
   });
 
   return uploadedImages.map((image) => {

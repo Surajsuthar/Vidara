@@ -1,6 +1,7 @@
 import type { Job } from "bullmq";
 import type { ImageGenOptions, ImageGenResult } from "@/ai/types";
 import { sanitizePrompt } from "@/lib/prompt-sanitizer";
+import { refundGenerationCredits } from "@/utils/credit-service";
 import { generateImage } from "../../../ai";
 import { BaseWorker } from "../../../worker/queue/BaseWorker";
 import {
@@ -127,17 +128,30 @@ export class GenerationWorker extends BaseWorker<
     job: Job<GenerationJobData> | undefined,
     err: Error,
   ): void {
+    const maxAttempts = job?.opts.attempts ?? 1;
+    if (job && job.attemptsMade < maxAttempts) {
+      super.onFailed(job, err);
+      console.error(
+        `[GenerationWorker] Job ${job.id} attempt ${job.attemptsMade}/${maxAttempts} failed | requestId: ${job.data.requestId} | error: ${err.message}`,
+      );
+      return;
+    }
+
     if (job?.data.requestId) {
-      void Promise.all([
-        setGenerationJobFailed(job.data.requestId, {
+      void (async () => {
+        await setGenerationJobFailed(job.data.requestId, {
           code: "IMAGE_GENERATION_FAILED",
           message: err.message,
-        }),
-        markGenerationFailed({
+        });
+        await markGenerationFailed({
           requestId: job.data.requestId,
           errorMessage: err.message,
-        }),
-      ]).catch((statusError) => {
+        });
+        await refundGenerationCredits({
+          requestId: job.data.requestId,
+          reason: err.message,
+        });
+      })().catch((statusError) => {
         console.error(
           `[GenerationWorker] Failed to persist failure state | requestId: ${job.data.requestId} | error: ${
             statusError instanceof Error ? statusError.message : statusError

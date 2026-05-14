@@ -4,6 +4,7 @@ import { Github } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
 import { useGithub } from "@/hooks/use-github-count";
+import { useQueryData } from "@/hooks/use-query-data";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
@@ -15,6 +16,30 @@ interface DashboardProviderProps {
 export function DashboardProvider({ children }: DashboardProviderProps) {
   const { stargazers_count } = useGithub();
   const { data: session, isPending } = useSession();
+  const { data: creditData } = useQueryData<{
+    success: true;
+    credits: number;
+    expireAt: string;
+  }>(
+    ["user-credits", session?.user?.id],
+    async () => {
+      const response = await fetch("/api/credits", {
+        method: "GET",
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch credits.");
+      }
+
+      return response.json();
+    },
+    {
+      enabled: Boolean(session?.user),
+      staleTime: 30_000,
+      refetchInterval: 30_000,
+    },
+  );
 
   return (
     <section className="w-full h-full">
@@ -23,14 +48,16 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="outline" size="sm">
-                {!isPending && session?.user ? "0.00" : "0.00"}
+                {!isPending && session?.user
+                  ? `${creditData?.credits ?? 0} credits`
+                  : "0 credits"}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
               <p>
                 {!isPending && session?.user
                   ? "Total credit remaining"
-                  : "Upgrad for More credit"}
+                  : "Upgrade for more credit"}
               </p>
             </TooltipContent>
           </Tooltip>

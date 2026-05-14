@@ -22,6 +22,13 @@
       "when": 1777622400000,
       "tag": "0002_add_media_seed",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778734731416,
+      "tag": "0003_vengeful_bucky",
+      "breakpoints": true
     }
   ]
 }

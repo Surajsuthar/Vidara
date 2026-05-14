@@ -7,7 +7,6 @@ import type {
   QualityTier,
 } from "@/ai/types";
 import { enqueueImageGeneration } from "@/jobs/generation/GenerationQueue";
-import { createPendingGenerationRecord } from "@/jobs/generation/persistence";
 import {
   createGenerationJobState,
   getGenerationJobState,
@@ -16,6 +15,11 @@ import { getMyUser } from "@/lib/auth-service";
 import { Errors, wrapError } from "@/lib/error";
 import { sanitizePrompt } from "@/lib/prompt-sanitizer";
 import { getClientInfo, rateLimit } from "@/lib/utils";
+import {
+  InsufficientCreditsError,
+  refundGenerationCredits,
+  reserveCreditsForImageGeneration,
+} from "@/utils/credit-service";
 
 const generateRequestSchema = z.object({
   prompt: z.string().trim().min(1),
@@ -169,31 +173,44 @@ export async function POST(req: Request) {
     }
 
     const requestId = crypto.randomUUID();
-    await createPendingGenerationRecord({
+    const creditReservation = await reserveCreditsForImageGeneration({
       requestId,
       userId: userAuth.id,
       options: payload,
     });
 
-    await createGenerationJobState({
-      id: requestId,
-      userId: userAuth.id,
-      prompt: payload.prompt,
-      model: payload.model,
-    });
+    try {
+      await createGenerationJobState({
+        id: requestId,
+        userId: userAuth.id,
+        prompt: payload.prompt,
+        model: payload.model,
+      });
 
-    await enqueueImageGeneration({
-      requestId,
-      userId: userAuth.id,
-      prompt: payload.prompt,
-      options: payload,
-    });
+      await enqueueImageGeneration({
+        requestId,
+        userId: userAuth.id,
+        prompt: payload.prompt,
+        options: payload,
+      });
+    } catch (queueError) {
+      await refundGenerationCredits({
+        requestId,
+        reason:
+          queueError instanceof Error
+            ? queueError.message
+            : "Failed to queue generation.",
+      });
+      throw queueError;
+    }
 
     return Response.json(
       {
         success: true,
         data: "Image generation queued successfully.",
-        remaining,
+        creditsCharged: creditReservation.estimate.credits,
+        remainingCredits: creditReservation.balance,
+        rateLimitRemaining: remaining,
         requestId,
         status: "queued",
       },
@@ -208,7 +225,11 @@ export async function POST(req: Request) {
         ? Errors.validation("Invalid request payload.", {
             issues: error.flatten(),
           })
-        : wrapError(error, "IMAGE_GENERATION_FAILED");
+        : error instanceof InsufficientCreditsError
+          ? Errors.validation(error.message, {
+              requiredCredits: error.requiredCredits,
+            })
+          : wrapError(error, "IMAGE_GENERATION_FAILED");
 
     return Response.json(appError.toResponse(), {
       status: appError.httpStatus,

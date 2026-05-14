@@ -1,4 +1,4 @@
-import { Check, Sparkles, Zap } from "lucide-react";
+import { Check, Gift, Sparkles, Zap } from "lucide-react";
 import Link from "next/link";
 import {
   PublicPageFooter,
@@ -47,6 +47,25 @@ export default function Pricing() {
       description="Start with the tier that matches your current creative volume. The details here are intentionally easy to edit when your final limits and prices are ready."
     >
       <section className="px-4 py-14 sm:px-6 sm:py-18">
+        <div className="mx-auto mb-5 flex max-w-6xl flex-col gap-5 border border-black/10 bg-[#f7f2eb] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div className="flex gap-4">
+            <div className="flex size-11 shrink-0 items-center justify-center bg-white text-[#b85f2f]">
+              <Gift className="size-5" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-semibold">Free signup credits</h2>
+              <p className="mt-2 max-w-2xl leading-7 text-black/62">
+                Create a free account and get{" "}
+                <span className="font-bold">20 welcome credits</span> to try
+                image generation before choosing a paid plan.
+              </p>
+            </div>
+          </div>
+          <Button asChild className="bg-[#111] text-white hover:bg-[#111]/90">
+            <Link href="/auth">Start free</Link>
+          </Button>
+        </div>
+
         <div className="mx-auto grid max-w-6xl gap-5 lg:grid-cols-2">
           {pricingPlans.map((plan) => {
             const Icon = plan.icon;
