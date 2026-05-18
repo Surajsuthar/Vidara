@@ -1,4 +1,4 @@
-import { getRedisClient } from "../../../worker/queue/RedisConnection";
+import { getRedisClient } from "../../../jobs/RedisConnection";
 
 export type GenerationJobStatus =
   | "queued"

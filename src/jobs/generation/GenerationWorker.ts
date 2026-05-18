@@ -3,7 +3,7 @@ import type { ImageGenOptions, ImageGenResult } from "@/ai/types";
 import { sanitizePrompt } from "@/lib/prompt-sanitizer";
 import { refundGenerationCredits } from "@/utils/credit-service";
 import { generateImage } from "../../../ai";
-import { BaseWorker } from "../../../worker/queue/BaseWorker";
+import { BaseWorker } from "../../../jobs/worker/BaseWorker";
 import {
   markGenerationFailed,
   markGenerationProcessing,
@@ -68,8 +68,7 @@ export class GenerationWorker extends BaseWorker<
     }
 
     console.log(
-      `[GenerationWorker] Job ${job.id} | requestId: ${requestId} | userId: ${
-        userId ?? "anonymous"
+      `[GenerationWorker] Job ${job.id} | requestId: ${requestId} | userId: ${userId ?? "anonymous"
       } | model: ${options.model}`,
     );
 
@@ -153,8 +152,7 @@ export class GenerationWorker extends BaseWorker<
         });
       })().catch((statusError) => {
         console.error(
-          `[GenerationWorker] Failed to persist failure state | requestId: ${job.data.requestId} | error: ${
-            statusError instanceof Error ? statusError.message : statusError
+          `[GenerationWorker] Failed to persist failure state | requestId: ${job.data.requestId} | error: ${statusError instanceof Error ? statusError.message : statusError
           }`,
         );
       });

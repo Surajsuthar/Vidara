@@ -29,9 +29,7 @@ export const env = createEnv({
     RESEND_API_KEY: z.string().min(1),
     RESEND_FROM_EMAIL: z.string().min(1),
 
-    REDIS_HOST: z.string().min(1),
-    REDIS_PORT: z.string().min(1),
-    REDIS_PASSWORD: z.string(),
+    REDIS_URL: z.string().min(1),
 
     OPENAI_API_KEY: z.string().min(1),
     XAI_API_KEY: z.string().min(1),

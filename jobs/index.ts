@@ -1,9 +1,9 @@
 import "dotenv/config";
 
-import { EmailWorker } from "@/jobs/email/EmailWorker";
 import { GenerationWorker } from "@/jobs/generation/GenerationWorker";
 import { closeDbPool } from "@/lib/db";
-import { closeRedisClient } from "./queue/RedisConnection";
+import { closeRedisClient } from "./RedisConnection";
+import { EmailWorker } from "./worker/email.worker";
 
 const workers = [EmailWorker.getInstance(), GenerationWorker.getInstance()];
 

@@ -1,6 +1,6 @@
 import type { JobsOptions } from "bullmq";
 import type { ImageGenOptions } from "@/ai/types";
-import { BaseQueue } from "../../../worker/queue/BaseQueue";
+import { BaseQueue } from "../../../jobs/queue/BaseQueue";
 
 export type GenerationJobName = "generate-image";
 

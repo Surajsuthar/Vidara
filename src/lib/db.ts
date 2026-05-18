@@ -20,6 +20,10 @@ if (process.env.NODE_ENV !== "production") {
   globalForDb.__vidaraDbPool = dbPool;
 }
 
+dbPool.on("connect", () => {
+  console.log("[Database] Connected");
+});
+
 dbPool.on("error", (error) => {
   console.error("[Database] Unexpected idle client error:", error);
 });
